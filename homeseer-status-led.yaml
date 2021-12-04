@@ -9,79 +9,82 @@ blueprint:
       description: Select the sensor device which offers scene selection.
         Listed devices are not guaranteed to work with any/all of these button mappings.
       selector:
-        device:
-          integration: zwave_js
-          entity:
-            domain: sensor
-    windows_are_open:
+        target:
+          device:
+            integration: zwave_js
+    current_state:
       name: Windows are open
       description: TODO
       selector:
         entity:
-#          device_class: window
-    can_open_windows:
+    expected_state:
       name: Windows can be open
       description: TODO
       selector:
         entity:
-          device_class: window
-      selector:
-        entity:
-#          device_class: input_boolean
 
 variables:
-  zwavejs_device_id: !input 'zwavejs_device_id'
-  windows_are_open: !input 'windows_are_open'
-  can_open_windows: !input 'can_open_windows'
+  zwavejs_device_id: !input "zwavejs_device_id"
+  current_state: !input "current_state"
+  expected_state: !input "expected_state"
 
 trigger:
   - platform: state
-    entity_id: !input 'can_open_windows'
+    entity_id: !input "current_state"
+  - platform: state
+    entity_id: !input "expected_state"
 
 action:
   - choose:
       - conditions:
           - condition: template
             value_template: >-
-              {{ states(windows_are_open) == states(can_open_windows) }}
+              {{ states(current_state) == states(expected_state) }}
         sequence:
           - service: zwave_js.set_config_parameter
             target:
-              device_id: zwavejs_device_id
+              device_id: !input "zwavejs_device_id"
             data:
-              parameter: '23'
-              value: 'Off'
+              parameter: "23"
+              value: "0"
+          - service: zwave_js.set_config_parameter
+            target:
+              device_id: !input "zwavejs_device_id"
+            data:
+              parameter: "31"
+              value: "0"
+              bitmask: "4"
     default:
       - choose:
           - conditions:
-              - condition: state
-                entity_id: can_open_windows
-                state: 'on'
+              - condition: template
+                value_template: >-
+                  {{ states(expected_state) == "on" }}
             sequence:
               - service: zwave_js.set_config_parameter
                 target:
-                  device_id: zwavejs_device_id
+                  device_id: !input "zwavejs_device_id"
                 data:
-                  parameter: '23'
-                  value: Green
+                  parameter: "23"
+                  value: "2"
         default:
           - service: zwave_js.set_config_parameter
             target:
-              device_id: zwavejs_device_id
+              device_id: !input "zwavejs_device_id"
             data:
-              parameter: '23'
-              value: Red
+              parameter: "23"
+              value: "1"
       - service: zwave_js.set_config_parameter
         target:
-          device_id: zwavejs_device_id
+          device_id: !input "zwavejs_device_id"
         data:
-          parameter: '31'
-          value: '1'
-          bitmask: '4'
+          parameter: "31"
+          value: "1"
+          bitmask: "4"
       - service: zwave_js.set_config_parameter
         target:
-          device_id: zwavejs_device_id
+          device_id: !input "zwavejs_device_id"
         data:
-          parameter: '13'
-          value: '1'
+          parameter: "13"
+          value: "1"
 mode: single
