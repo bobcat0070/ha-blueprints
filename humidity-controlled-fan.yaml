@@ -1,8 +1,7 @@
 blueprint:
   name: Humidity Controlled Fan
   description:
-    Turn a fan on and off based on the difference between a humidity sensor
-    and a baseline, based on absolute humidity (g/m3)
+    Turn a fan on and off based on the difference in absolute humidity (g/m3) between temperature and humidity sensors and baseline temperature and humidity sensors.
   domain: automation
   input:
     humidity_sensor:
@@ -103,7 +102,7 @@ variables:
   abs_humid_ref: >
     {% set rh, tC = states(reference_humidity_sensor), states(reference_temperature_sensor) %}
     {% if rh == 'unknown' or tC == 'unknown' %}unknown{% else %}
-      {% set rh, tF = rh|float, tF|float %}
+      {% set rh, tC = rh|float, tC|float %}
       {% if is_state_attr(reference_temperature_sensor, 'unit_of_measurement', '°F') %}
         {% set tC = (tC-32.0)/9*5 %}
       {% endif %}
@@ -112,7 +111,7 @@ variables:
   abs_humid: >
     {% set rh, tC = states(humidity_sensor), states(temperature_sensor) %}
     {% if rh == 'unknown' or tC == 'unknown' %}unknown{% else %}
-      {% set rh, tF = rh|float, tF|float %}
+      {% set rh, tC = rh|float, tC|float %}
       {% if is_state_attr(temperature_sensor, 'unit_of_measurement', '°F') %}
         {% set tC = (tC-32.0)/9*5 %}
       {% endif %}

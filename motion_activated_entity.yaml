@@ -84,6 +84,7 @@ blueprint:
         number:
           min: 0
           max: 60
+      default: 10
     turn_off_blocker_entity:
       name: (OPTIONAL) Turn-off Blocking entity
       description: If this entity's state is on, it will prevent the target entity from turning off after the set delay.

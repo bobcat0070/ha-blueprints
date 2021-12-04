@@ -56,7 +56,7 @@ variables:
     {% set result = namespace(sensors=[]) %}
     {% for state in states.sensor | selectattr('attributes.device_class', '==', 'battery') %}
       {% if 0 <= state.state | int(-1) < threshold | int and not state.entity_id in exclude.entity_id %}
-        {% set result.sensors = result.sensors + [state.name ~ ' (' ~ state.state ~ ' %)'] %}
+        {% set result.sensors = result.sensors + [state.name ~ ' (' ~ state.state | int ~ '%)'] %}
       {% endif %}
     {% endfor %}
     {% for state in states.binary_sensor | selectattr('attributes.device_class', '==', 'battery') | selectattr('state', '==', 'on') %}
@@ -64,12 +64,12 @@ variables:
         {% set result.sensors = result.sensors + [state.name] %}
       {% endif %}
     {% endfor %}
-    {{result.sensors|join(', ')}}
+    {{ result.sensors|join('\n') }}
 trigger:
 - platform: time
   at: !input 'time'
 condition:
-- '{{ sensors != '''' and (day | int == 0 or day | int == now().isoweekday()) }}'
+- '{{ sensors != "" and (day | int == 0 or day | int == now().isoweekday()) }}'
 action:
 - choose: []
   default: !input 'actions'
