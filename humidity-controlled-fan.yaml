@@ -48,6 +48,7 @@ blueprint:
       description: A switch that turns the fan on and off
       selector:
         entity:
+          domain: switch
     rising_threshold:
       name: Rising Threshold (in g/m3)
       description:
@@ -101,9 +102,7 @@ variables:
   falling_threshold: !input "falling_threshold"
   abs_humid_ref: >
     {% set rh, tC = states(reference_humidity_sensor), states(reference_temperature_sensor) %}
-    {% if rh == 'unknown' or tC == 'unknown' %}
-      unknown
-    {% else %}
+    {% if rh == 'unknown' or tC == 'unknown' %}unknown{% else %}
       {% set rh, tF = rh|float, tF|float %}
       {% if is_state_attr(reference_temperature_sensor, 'unit_of_measurement', '°F') %}
         {% set tC = (tC-32.0)/9*5 %}
@@ -112,9 +111,7 @@ variables:
     {% endif %}
   abs_humid: >
     {% set rh, tC = states(humidity_sensor), states(temperature_sensor) %}
-    {% if rh == 'unknown' or tC == 'unknown' %}
-      unknown
-    {% else %}
+    {% if rh == 'unknown' or tC == 'unknown' %}unknown{% else %}
       {% set rh, tF = rh|float, tF|float %}
       {% if is_state_attr(temperature_sensor, 'unit_of_measurement', '°F') %}
         {% set tC = (tC-32.0)/9*5 %}
