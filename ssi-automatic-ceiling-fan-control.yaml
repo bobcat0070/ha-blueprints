@@ -1,0 +1,134 @@
+blueprint:
+  name: Automatic ceiling fan to maintain comfort
+  description:
+    Use a ceiling fan to maintain comfort. Uses summer simmer index (SSI) to determine comfort.
+    The Summer Simmer Index - A Comfort Index for the New Millennium.
+    http://www.summersimmer.com/home.htm
+  source_url: https://gist.github.com/lymanepp/8bf9b302b29d8ed68315cf2be89b3b04
+  domain: automation
+  input:
+    temperature_sensor:
+      name: Temperature Sensor
+      description:
+        A sensor that measures the temperature of the area
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+    humidity_sensor:
+      name: Humidity Sensor
+      description:
+        A sensor that measures the humidity of the area
+      selector:
+        entity:
+          domain: sensor
+          device_class: humidity
+    fan_control:
+      name: Fan Control
+      description: The fan to be controlled
+      selector:
+        entity:
+          domain: fan
+    prerequisite_entity:
+      name: (OPTIONAL) Prerequisite entity
+      description: If this entity's state is off, it will prevent the automation from running. E.g. sleepmode or away mode.
+      default:
+      selector:
+        entity:
+    min_fan_speed:
+      name: Fan speed lower bound
+      description:
+        The lowest fan speed to use
+      selector:
+        number:
+          min: 0
+          max: 100
+          mode: slider
+          step: 1
+      default: 20
+    max_fan_speed:
+      name: Fan speed upper bound
+      description:
+        The highest fan speed to use
+      selector:
+        number:
+          min: 0
+          max: 100
+          mode: slider
+          step: 1
+      default: 80
+    lower_ssi:
+      name: Summer simmer index (SSI) lower bound (°F)
+      description:
+        The SSI at which the lowest fan speed will be active
+      selector:
+        number:
+          min: 0
+          max: 100
+          mode: slider
+          step: 1
+      default: 83
+    upper_ssi:
+      name: Summer simmer index (SSI) upper bound (°F)
+      description:
+        The SSI at which the highest fan speed will be active
+      selector:
+        number:
+          min: 0
+          max: 100
+          mode: slider
+          step: 1
+      default: 91
+
+trigger:
+  - entity_id: !input "humidity_sensor"
+    platform: state
+  - entity_id: !input "temperature_sensor"
+    platform: state
+  - entity_id: !input "fan_control"
+    platform: state
+
+condition:
+  - condition: template
+    value_template: "{{ (new_state != curr_state) or (new_speed != curr_speed) }}"
+  - condition: template
+    value_template: "{{ (prerequisite_entity == none) or (states[prerequisite_entity].state == 'on') }}"
+
+action:
+  - service: fan.set_percentage
+    target:
+      entity_id: !input "fan_control"
+    data:
+      percentage: "{{ new_speed }}"
+
+variables:
+  temperature_sensor: !input temperature_sensor
+  humidity_sensor: !input humidity_sensor
+  fan_control: !input fan_control
+  prerequisite_entity: !input prerequisite_entity
+  min_fan_speed: !input min_fan_speed
+  max_fan_speed: !input max_fan_speed
+  lower_ssi: !input lower_ssi
+  upper_ssi: !input upper_ssi
+
+  curr_state: "{{ states(fan_control) }}"
+  curr_speed: "{{ state_attr(fan_control, 'percentage')|int }}"
+  fan_range: "{{ max_fan_speed - min_fan_speed }}"
+  ssi_range: "{{ upper_ssi - lower_ssi }}"
+  ssi: >
+    {% set rh, tF = states(humidity_sensor), states(temperature_sensor) %}
+    {% if rh == 'unknown' or tF == 'unknown' %}unknown{% else %}
+    {% set rh, tF = rh|float, tF|float %}
+    {% if is_state_attr(temperature_sensor, 'unit_of_measurement', '°C') %}
+    {% set tF = (tF/5.0*9)+32 %}
+    {% endif %}
+    {{ 1.98*(tF-(0.55-(0.0055*rh))*(tF-58))-56.83 }}
+    {% endif %}
+  new_speed: >
+    {% if ssi|float < lower_ssi|float
+    %}0{% elif ssi|float > upper_ssi|float
+    %}{{ max_fan_speed }}{% else
+    %}{{ ((((ssi-lower_ssi)/ssi_range)*fan_range)+min_fan_speed)|int }}{% endif %}
+  new_state: >
+    {% if new_speed > 0 %}on{% else %}off{% endif %}
+mode: single
