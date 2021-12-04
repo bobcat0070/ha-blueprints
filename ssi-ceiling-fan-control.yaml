@@ -1,7 +1,7 @@
 blueprint:
   name: Automatic ceiling fan to maintain comfort
   description:
-    Use a ceiling fan to maintain comfort. Uses summer simmer index (SSI) to determine comfort.
+    Use a ceiling fan to maintain comfort. Uses the summer simmer index (SSI) to determine comfort level.
     The Summer Simmer Index - A Comfort Index for the New Millennium.
     http://www.summersimmer.com/home.htm
   source_url: https://gist.github.com/lymanepp/8bf9b302b29d8ed68315cf2be89b3b04
