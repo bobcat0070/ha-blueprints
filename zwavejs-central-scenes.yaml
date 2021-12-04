@@ -26,25 +26,25 @@ blueprint:
       description: Action to run, when the up button is pressed one time.
       default: []
       selector:
-        action: {}
+        action:
     key_down:
       name: Key Down/Off press 1x
       description: Action to run, when the down button is pressed one time.
       default: []
       selector:
-        action: {}
+        action:
     key_config:
       name: Config scene
       description: Action to run, when the config button is pressed (like the one from Inovelli switches)
       default: []
       selector:
-        action: {}
+        action:
     key_up_held:
       name: Key Up/On held
       description: Action to run, when the up button is held.
       default: []
       selector:
-        action: {}
+        action:
     is_loop_for_key_up_held:
       name: Key Up/On held loop?
       description: Asserts whether you want to loop the held action until the button is released which could simulate the impact of a dimmer switch
@@ -56,7 +56,7 @@ blueprint:
       description: Action to run, when the down button is held.
       default: []
       selector:
-        action: {}
+        action:
     is_loop_for_key_down_held:
       name: Key Down/On held loop?
       description: Asserts whether you want to loop the held action until the button is released which could simulate the impact of a dimmer switch
@@ -68,61 +68,61 @@ blueprint:
       description: Action to run, when the up button is released.
       default: []
       selector:
-        action: {}
+        action:
     key_down_released:
       name: Key Down/Off released
       description: Action to run, when the down button is released.
       default: []
       selector:
-        action: {}
+        action:
     key_up_2x:
       name: Key Up/On press 2x
       description: Action to run, when the up button is pressed two times.
       default: []
       selector:
-        action: {}
+        action:
     key_down_2x:
       name: Key Down/Off press 2x
       description: Action to run, when the down button is pressed two times.
       default: []
       selector:
-        action: {}
+        action:
     key_up_3x:
       name: Key Up/On press 3x
       description: Action to run, when the up button is pressed three times.
       default: []
       selector:
-        action: {}
+        action:
     key_down_3x:
       name: Key Down/Off press 3x
       description: Action to run, when the down button is pressed three times.
       default: []
       selector:
-        action: {}
+        action:
     key_up_4x:
       name: Key Up/On press 4x
       description: Action to run, when the up button is pressed four times.
       default: []
       selector:
-        action: {}
+        action:
     key_down_4x:
       name: Key Down/Off press 4x
       description: Action to run, when the down button is pressed four times.
       default: []
       selector:
-        action: {}
+        action:
     key_up_5x:
       name: Key Up/On press 5x
       description: Action to run, when the up button is pressed five times.
       default: []
       selector:
-        action: {}
+        action:
     key_down_5x:
       name: Key Down/Off press 5x
       description: Action to run, when the down button is pressed five times.
       default: []
       selector:
-        action: {}
+        action:
 # mode restart ensures hold actions are interrupted when the corresponding release action is received
 mode: restart
 max_exceeded: silent

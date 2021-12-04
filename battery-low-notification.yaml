@@ -22,7 +22,7 @@ blueprint:
       description: Test is run at configured time
       default: '10:00:00'
       selector:
-        time: {}
+        time:
     day:
       name: Weekday to test on
       description: 'Test is run at configured time either everyday (0) or on a given
@@ -47,7 +47,7 @@ blueprint:
       description: Notifications or similar to be run. {{sensors}} is replaced with
         the names of sensors being low on battery.
       selector:
-        action: {}
+        action:
 variables:
   day: !input 'day'
   threshold: !input 'threshold'
