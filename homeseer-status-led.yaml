@@ -1,0 +1,87 @@
+blueprint:
+  name: TODO
+  description: TODO
+  source_url: TODO
+  domain: automation
+  input:
+    zwavejs_device_id:
+      name: Z-Wave JS switch
+      description: Select the sensor device which offers scene selection.
+        Listed devices are not guaranteed to work with any/all of these button mappings.
+      selector:
+        device:
+          integration: zwave_js
+          entity:
+            domain: sensor
+    windows_are_open:
+      name: Windows are open
+      description: TODO
+      selector:
+        entity:
+#          device_class: window
+    can_open_windows:
+      name: Windows can be open
+      description: TODO
+      selector:
+        entity:
+          device_class: window
+      selector:
+        entity:
+#          device_class: input_boolean
+
+variables:
+  zwavejs_device_id: !input 'zwavejs_device_id'
+  windows_are_open: !input 'windows_are_open'
+  can_open_windows: !input 'can_open_windows'
+
+trigger:
+  - platform: state
+    entity_id: !input 'can_open_windows'
+
+action:
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ states(windows_are_open) == states(can_open_windows) }}
+        sequence:
+          - service: zwave_js.set_config_parameter
+            target:
+              device_id: zwavejs_device_id
+            data:
+              parameter: '23'
+              value: 'Off'
+    default:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: can_open_windows
+                state: 'on'
+            sequence:
+              - service: zwave_js.set_config_parameter
+                target:
+                  device_id: zwavejs_device_id
+                data:
+                  parameter: '23'
+                  value: Green
+        default:
+          - service: zwave_js.set_config_parameter
+            target:
+              device_id: zwavejs_device_id
+            data:
+              parameter: '23'
+              value: Red
+      - service: zwave_js.set_config_parameter
+        target:
+          device_id: zwavejs_device_id
+        data:
+          parameter: '31'
+          value: '1'
+          bitmask: '4'
+      - service: zwave_js.set_config_parameter
+        target:
+          device_id: zwavejs_device_id
+        data:
+          parameter: '13'
+          value: '1'
+mode: single
