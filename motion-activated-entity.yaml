@@ -29,7 +29,7 @@ blueprint:
       - Turn off wait time [in minutes!] (input_number) - will not work with script or scene target entities.
       - Turn off entity (any entity_id)
 
-  source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/motion_activated_entity.yaml
+  source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/motion-activated-entity.yaml
   domain: automation
   input:
     motion_sensor:
