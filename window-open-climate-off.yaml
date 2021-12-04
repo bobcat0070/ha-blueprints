@@ -6,6 +6,7 @@ blueprint:
     a heater or an air conditioning if a window sensor is open for a specific time.
     It waits until the window is closed again in order to turn the climate entity
     on again.
+  source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/window-open-climate-off.yaml
   domain: automation
   input:
     window_entity:
@@ -32,7 +33,6 @@ blueprint:
       selector:
         entity:
           domain: climate
-  source_url: https://community.home-assistant.io/t/window-open-climate-off/257293
 trigger:
   - platform: state
     entity_id: !input "window_entity"

@@ -2,6 +2,7 @@
 blueprint:
   name: Leak detection & notifier
   description: Send a notification when any configured moisture sensor becomes moist
+  source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/leak-detector-notifier.yaml
   domain: automation
   input:
     notify_device:
@@ -10,7 +11,6 @@ blueprint:
       selector:
         device:
           integration: mobile_app
-  source_url: https://gist.github.com/bbbenji/d4d1fe1856ec54370a422508c8963f2a
 trigger:
 - event_data: {}
   event_type: state_changed
