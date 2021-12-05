@@ -12,6 +12,19 @@ blueprint:
         target:
           device:
             integration: zwave_js
+    status_led:
+      name: Status LED to be activated
+      description: The number of available status LEDs varies by device. HS-WD200+ and HS-WX300 have seven LEDs. HS-FC200+ has four LEDs.
+      selector:
+        select:
+          options:
+            - LED1
+            - LED2
+            - LED3
+            - LED4
+            - LED5
+            - LED6
+            - LED7
     current_state:
       name: Entity with current state
       description: TODO
@@ -22,122 +35,126 @@ blueprint:
       description: TODO
       selector:
         entity:
-    led_number:
-      name: LED to be activated
+    color_if_as_expected:
+      name: LED color if state is as expected
       description: TODO
       selector:
-        number:
-          min: 1
-          max: 4
-          step: 1
-          mode: slider
-    color_if_equal:
-      name: Color if states are equal
-      description: 0=Off, 1=Red, 2=Green, 3=Blue, TODO
-      selector:
-        number:
-          min: 0
-          max: 7
-          step: 1
-          mode: slider
-    blink_if_equal:
-      name: Blink if states are equal
+        select:
+          options:
+            - "0: Off"
+            - "1: Red"
+            - "2: Green"
+            - "3: Blue"
+            - "4: Magenta"
+            - "5: Yellow"
+            - "6: Cyan"
+            - "7: White"
+    blink_if_as_expected:
+      name: Blink if state is as expected
       description: TODO
       selector:
         boolean:
-    color_if_current:
-      name: Color if current state is on
-      description: 0=Off, 1=Red, 2=Green, 3=Blue, TODO
+    color_if_expected_off:
+      name: LED color if state is expected to be 'off', but was 'on'
+      description: TODO
       selector:
-        number:
-          min: 0
-          max: 7
-          step: 1
-          mode: slider
-    blink_if_current:
-      name: Blink if current state is on
+        select:
+          options:
+            - "0: Off"
+            - "1: Red"
+            - "2: Green"
+            - "3: Blue"
+            - "4: Magenta"
+            - "5: Yellow"
+            - "6: Cyan"
+            - "7: White"
+    blink_if_expected_off:
+      name: Blink if state is expected to be 'off', but was 'on'
       description: TODO
       selector:
         boolean:
-    color_if_expected:
-      name: Color if expected state is on
-      description: 0=Off, 1=Red, 2=Green, 3=Blue, TODO
+    color_if_expected_on:
+      name: LED color if state is expected to be 'on', but was 'off'
+      description: TODO
       selector:
-        number:
-          min: 0
-          max: 7
-          step: 1
-          mode: slider
-    blink_if_expected:
-      name: Blink if expected state is on
+        select:
+          options:
+            - "0: Off"
+            - "1: Red"
+            - "2: Green"
+            - "3: Blue"
+            - "4: Magenta"
+            - "5: Yellow"
+            - "6: Cyan"
+            - "7: White"
+    blink_if_expected_on:
+      name: Blink if state is expected to be 'on', but was 'off'
       description: TODO
       selector:
         boolean:
 
 variables:
-  zwavejs_device_id: !input "zwavejs_device_id"
-  current_state: !input "current_state"
-  expected_state: !input "expected_state"
-  led_number: !input "led_number"
+  zwavejs_device_id: !input zwavejs_device_id
+  current_state: !input current_state
+  expected_state: !input expected_state
+  status_led: !input status_led
 
-  color_if_equal: !input "color_if_equal"
-  blink_if_equal: !input "blink_if_equal"
+  color_if_as_expected: !input color_if_as_expected
+  blink_if_as_expected: !input blink_if_as_expected
 
-  color_if_current: !input "color_if_current"
-  blink_if_current: !input "blink_if_current"
+  color_if_expected_off: !input color_if_expected_off
+  blink_if_expected_off: !input blink_if_expected_off
 
-  color_if_expected: !input "color_if_expected"
-  blink_if_expected: !input "blink_if_expected"
-  
-  color_parameter_id: '{{ ( led_number + 20 ) }}'
-  blink_bit_mask: '{{ ( (1,2,4,8)[led_number - 1] ) }}'
-  
+  color_if_expected_on: !input color_if_expected_on
+  blink_if_expected_on: !input blink_if_expected_on
+
+  led_number: "{{ status_led[-1] }}"
+  color_parameter_id: "{{ ( led_number + 20 ) }}"
+  blink_bit_mask: "{{ ( (1,2,4,8)[led_number - 1] ) }}"
+
   color_value: >-
     {% set current, expected = states(current_state), states(expected_state) %}
     {% if states(current_state) == states(expected_state) %}
-      {{ color_if_equal }}
+      {{ color_if_as_expected[0] | int }}
     {% elif states(current_state) == 'on' %}
-      {{ color_if_current }}
+      {{ color_if_expected_off[0] | int }}
     {% elif states(expected_state) == 'on' %}
-      {{ color_if_expected }}
+      {{ color_if_expected_on[0] | int }}
     {% endif %}
 
   blink_value: >-
     {% set current, expected = states(current_state), states(expected_state) %}
     {% if states(current_state) == states(expected_state) %}
-      {{ blink_if_equal }}
+      {{ blink_if_as_expected | int }}
     {% elif states(current_state) == 'on' %}
-      {{ blink_if_current }}
+      {{ blink_if_expected_off | int}}
     {% elif states(expected_state) == 'on' %}
-      {{ blink_if_expected }}
+      {{ blink_if_expected_on | int }}
     {% endif %}
 
 trigger:
-- platform: state
-  entity_id: !input "current_state"
-- platform: state
-  entity_id: !input "expected_state"
+  - platform: state
+    entity_id: !input current_state
+  - platform: state
+    entity_id: !input expected_state
 
 condition: []
 
 action:
-- service: zwave_js.set_config_parameter
-  target:
-    device_id: !input "zwavejs_device_id"
-  data:
-    value: '{{ color_value }}'
-    parameter: '{{ color_parameter_id }}'
-- service: zwave_js.set_config_parameter
-  target:
-    device_id: !input "zwavejs_device_id"
-  data:
-    parameter: '31'
-    value: '{{ blink_value }}'
-    bitmask: '{{ blink_bit_mask }}'
-- service: zwave_js.set_config_parameter
-  target:
-    device_id: !input "zwavejs_device_id"
-  data:
-    parameter: '13'
-    value: '1'
+  - service: zwave_js.set_config_parameter
+    target: !input zwavejs_device_id
+    data:
+      value: "{{ color_value }}"
+      parameter: "{{ color_parameter_id }}"
+  - service: zwave_js.set_config_parameter
+    target: !input zwavejs_device_id
+    data:
+      parameter: "31"
+      value: "{{ blink_value }}"
+      bitmask: "{{ blink_bit_mask }}"
+  - service: zwave_js.set_config_parameter
+    target: !input zwavejs_device_id
+    data:
+      parameter: "13"
+      value: "1"
 mode: single
