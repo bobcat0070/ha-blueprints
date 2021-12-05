@@ -1,5 +1,5 @@
 blueprint:
-  name: TODO
+  name: Activate HomeSeer status LEDs
   description: TODO
   source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/homeseer-status-led.yaml
   domain: automation
@@ -13,78 +13,131 @@ blueprint:
           device:
             integration: zwave_js
     current_state:
-      name: Windows are open
+      name: Entity with current state
       description: TODO
       selector:
         entity:
     expected_state:
-      name: Windows can be open
+      name: Entity with expected state
       description: TODO
       selector:
         entity:
+    led_number:
+      name: LED to be activated
+      description: TODO
+      selector:
+        number:
+          min: 1
+          max: 4
+          step: 1
+          mode: slider
+    color_if_equal:
+      name: Color if states are equal
+      description: 0=Off, 1=Red, 2=Green, 3=Blue, TODO
+      selector:
+        number:
+          min: 0
+          max: 7
+          step: 1
+          mode: slider
+    blink_if_equal:
+      name: Blink if states are equal
+      description: TODO
+      selector:
+        boolean:
+    color_if_current:
+      name: Color if current state is on
+      description: 0=Off, 1=Red, 2=Green, 3=Blue, TODO
+      selector:
+        number:
+          min: 0
+          max: 7
+          step: 1
+          mode: slider
+    blink_if_current:
+      name: Blink if current state is on
+      description: TODO
+      selector:
+        boolean:
+    color_if_expected:
+      name: Color if expected state is on
+      description: 0=Off, 1=Red, 2=Green, 3=Blue, TODO
+      selector:
+        number:
+          min: 0
+          max: 7
+          step: 1
+          mode: slider
+    blink_if_expected:
+      name: Blink if expected state is on
+      description: TODO
+      selector:
+        boolean:
 
 variables:
   zwavejs_device_id: !input "zwavejs_device_id"
   current_state: !input "current_state"
   expected_state: !input "expected_state"
+  led_number: !input "led_number"
+
+  color_if_equal: !input "color_if_equal"
+  blink_if_equal: !input "blink_if_equal"
+
+  color_if_current: !input "color_if_current"
+  blink_if_current: !input "blink_if_current"
+
+  color_if_expected: !input "color_if_expected"
+  blink_if_expected: !input "blink_if_expected"
+  
+  set_color_parameter: {{ led_number + 20 }}
+  bit_mask: {{ (1,2,4,8)[led_number - 1] }}
+  
+  color_value: >-
+    {% set current, expected = states(current_state), states(expected_state) %}
+    {% if states(current_state) == states(expected_state) %}
+      {{ color_if_equal }}
+    {% elif states(current_state) == 'on' %}
+      {{ color_if_current }}
+    {% elif states(expected_state) == 'on' %}
+      {{ color_if_expected }}
+    {% endif %}
+
+  blink_value: >-
+    {% set current, expected = states(current_state), states(expected_state) %}
+    {% if states(current_state) == states(expected_state) %}
+      {{ blink_if_equal }}
+    {% elif states(current_state) == 'on' %}
+      {{ blink_if_current }}
+    {% elif states(expected_state) == 'on' %}
+      {{ blink_if_expected }}
+    {% endif %}
 
 trigger:
-  - platform: state
-    entity_id: !input "current_state"
-  - platform: state
-    entity_id: !input "expected_state"
+- platform: state
+  entity_id: !input "current_state"
+- platform: state
+  entity_id: !input "expected_state"
+
+condition: []
 
 action:
-  - choose:
-      - conditions:
-          - condition: template
-            value_template: >-
-              {{ states(current_state) == states(expected_state) }}
-        sequence:
-          - service: zwave_js.set_config_parameter
-            target:
-              device_id: !input "zwavejs_device_id"
-            data:
-              parameter: "23"
-              value: "0"
-          - service: zwave_js.set_config_parameter
-            target:
-              device_id: !input "zwavejs_device_id"
-            data:
-              parameter: "31"
-              value: "0"
-              bitmask: "4"
-    default:
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: >-
-                  {{ states(expected_state) == "on" }}
-            sequence:
-              - service: zwave_js.set_config_parameter
-                target:
-                  device_id: !input "zwavejs_device_id"
-                data:
-                  parameter: "23"
-                  value: "2"
-        default:
-          - service: zwave_js.set_config_parameter
-            target:
-              device_id: !input "zwavejs_device_id"
-            data:
-              parameter: "23"
-              value: "1"
-      - service: zwave_js.set_config_parameter
-        target:
-          device_id: !input "zwavejs_device_id"
-        data:
-          parameter: "31"
-          value: "1"
-          bitmask: "4"
-      - service: zwave_js.set_config_parameter
-        target:
-          device_id: !input "zwavejs_device_id"
-        data:
-          parameter: "13"
-          value: "1"
+- service: zwave_js.set_config_parameter
+  target:
+    device_id: !input "zwavejs_device_id"
+  data:
+    parameter: {{ set_color_parameter }}
+    value: {{ color_value }}
+- service: zwave_js.set_config_parameter
+  target:
+    device_id: !input "zwavejs_device_id"
+  data:
+    parameter: '31'
+    value: {{ blink_value }}
+    bitmask: bit_mask
+- service: zwave_js.set_config_parameter
+  target:
+    device_id: !input "zwavejs_device_id"
+  data:
+    parameter: '13'
+    value: '1'
 mode: single
