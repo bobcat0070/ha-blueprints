@@ -1,0 +1,217 @@
+blueprint:
+  name: Activate HomeSeer status LEDs
+  description: TODO
+  source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/homeseer-status-led.yaml
+  domain: automation
+  input:
+    zwavejs_device_id:
+      name: Z-Wave JS switch
+      description: Select the sensor device which offers scene selection.
+        Listed devices are not guaranteed to work with any/all of these button mappings.
+      selector:
+        target:
+          device:
+            integration: zwave_js
+    status_led:
+      name: Status LED to be activated
+      description: The number of available status LEDs varies by device. HS-WD200+ and HS-WX300 have seven LEDs. HS-FC200+ has four LEDs.
+      selector:
+        select:
+          options:
+            - LED1
+            - LED2
+            - LED3
+            - LED4
+            - LED5
+            - LED6
+            - LED7
+    current_state:
+      name: Entity with current state
+      description: TODO
+      selector:
+        entity:
+
+    option_1_entity:
+      name: (OPTION 1) Entity to compare
+      description: TODO
+      selector:
+        entity:
+      default:
+    option_1_color:
+      name: LED color if entity state matches
+      description: TODO
+      selector:
+        select:
+          options:
+            - "0: Off"
+            - "1: Red"
+            - "2: Green"
+            - "3: Blue"
+            - "4: Magenta"
+            - "5: Yellow"
+            - "6: Cyan"
+            - "7: White"
+      default: "0: Off"
+    option_1_blink:
+      name: Blink if entity state matches
+      description: TODO
+      selector:
+        boolean:
+      default: false
+
+    option_2_text:
+      name: (OPTION 2) Text to compare
+      description: TODO
+      selector:
+        text:
+      default: ""
+    option_2_color:
+      name: LED color if option 2 text matches
+      description: TODO
+      selector:
+        select:
+          options:
+            - "0: Off"
+            - "1: Red"
+            - "2: Green"
+            - "3: Blue"
+            - "4: Magenta"
+            - "5: Yellow"
+            - "6: Cyan"
+            - "7: White"
+      default: "0: Off"
+    option_2_blink:
+      name: Blink if option 2 text matches
+      description: TODO
+      selector:
+        boolean:
+      default: false
+
+    option_3_text:
+      name: (OPTION 3) Text to compare
+      description: TODO
+      selector:
+        text:
+      default: ""
+    option_3_color:
+      name: LED color if option 3 text matches
+      description: TODO
+      selector:
+        select:
+          options:
+            - "0: Off"
+            - "1: Red"
+            - "2: Green"
+            - "3: Blue"
+            - "4: Magenta"
+            - "5: Yellow"
+            - "6: Cyan"
+            - "7: White"
+      default: "0: Off"
+    option_3_blink:
+      name: Blink if option 3 text matches
+      description: TODO
+      selector:
+        boolean:
+      default: false
+
+    option_4_text:
+      name: (OPTION 4) Text to compare
+      description: TODO
+      selector:
+        text:
+      default:
+    option_4_color:
+      name: LED color if option 4 text matches
+      description: TODO
+      selector:
+        select:
+          options:
+            - "0: Off"
+            - "1: Red"
+            - "2: Green"
+            - "3: Blue"
+            - "4: Magenta"
+            - "5: Yellow"
+            - "6: Cyan"
+            - "7: White"
+      default: "0: Off"
+    option_4_blink:
+      name: Blink if option 4 text matches
+      description: TODO
+      selector:
+        boolean:
+      default:
+
+variables:
+  zwavejs_device_id: !input zwavejs_device_id
+  status_led: !input status_led
+  current_state: !input current_state
+
+  option_1_entity: !input option_1_entity
+  option_1_color: !input option_1_color
+  option_1_blink: !input option_1_blink
+  option_2_text: !input option_2_text
+  option_2_color: !input option_2_color
+  option_2_blink: !input option_2_blink
+  option_3_text: !input option_3_text
+  option_3_color: !input option_3_color
+  option_3_blink: !input option_3_blink
+  option_4_text: !input option_4_text
+  option_4_color: !input option_4_color
+  option_4_blink: !input option_4_blink
+
+  led_number: "{{ status_led[-1] }}"
+  color_parameter: "{{ ( led_number + 20 ) }}"
+  blink_bitmask: "{{ ( (1,2,4,8)[led_number - 1] ) }}"
+
+  color_value: >-
+    {% set current = states(current_state) %}
+    {% if option_1_entity != none and current == states(option_1_entity) %}
+      {{ option_1_color[0] | int }}
+    {% elif option_2_text != '' and current == option_2_text %}
+      {{ option_2_color[0] | int }}
+    {% elif option_3_text != '' and current == option_3_text %}
+      {{ option_3_color[0] | int }}
+    {% elif option_4_text != '' and current == option_4_text %}
+      {{ option_4_color[0] | int }}
+    {% endif %}
+
+  blink_value: >-
+    {% set current = states(current_state) %}
+    {% if option_1_entity != none and current == states(option_1_entity) %}
+      {{ option_1_blink | int }}
+    {% elif option_2_text != '' and current == option_2_text %}
+      {{ option_2_blink | int }}
+    {% elif option_3_text != '' and current == option_3_text %}
+      {{ option_3_blink | int }}
+    {% elif option_4_text != '' and current == option_4_text %}
+      {{ option_4_blink | int }}
+    {% endif %}
+
+trigger:
+  - platform: state
+    entity_id:
+      - !input current_state
+      - !input option_1_entity
+
+condition: []
+
+action:
+  - service: zwave_js.set_config_parameter
+    target: !input zwavejs_device_id
+    data:
+      value: "{{ color_value }}"
+      parameter: "{{ color_parameter }}"
+  - service: zwave_js.set_config_parameter
+    target: !input zwavejs_device_id
+    data:
+      parameter: "31"
+      value: "{{ blink_value }}"
+      bitmask: "{{ blink_bitmask }}"
+  - service: zwave_js.set_config_parameter
+    target: !input zwavejs_device_id
+    data:
+      parameter: "13"
+      value: "1"
+mode: single

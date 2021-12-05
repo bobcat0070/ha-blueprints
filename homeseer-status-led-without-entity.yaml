@@ -31,14 +31,14 @@ blueprint:
       selector:
         entity:
 
-    option_1_entity:
-      name: (OPTION 1) Entity to compare
+    option_1_text:
+      name: (OPTION 1) Text to compare
       description: TODO
       selector:
-        entity:
-      default:
+        text:
+      default: ""
     option_1_color:
-      name: LED color if entity state matches
+      name: LED color if option 1 text matches
       description: TODO
       selector:
         select:
@@ -53,7 +53,7 @@ blueprint:
             - "7: White"
       default: "0: Off"
     option_1_blink:
-      name: Blink if entity state matches
+      name: Blink if option 1 text matches
       description: TODO
       selector:
         boolean:
@@ -148,16 +148,16 @@ variables:
   status_led: !input status_led
   current_state: !input current_state
 
-  option_1_entity: !input option_1_entity
+  option_1_text:  !input option_1_text
   option_1_color: !input option_1_color
   option_1_blink: !input option_1_blink
-  option_2_text: !input option_2_text
+  option_2_text:  !input option_2_text
   option_2_color: !input option_2_color
   option_2_blink: !input option_2_blink
-  option_3_text: !input option_3_text
+  option_3_text:  !input option_3_text
   option_3_color: !input option_3_color
   option_3_blink: !input option_3_blink
-  option_4_text: !input option_4_text
+  option_4_text:  !input option_4_text
   option_4_color: !input option_4_color
   option_4_blink: !input option_4_blink
 
@@ -167,33 +167,32 @@ variables:
 
   color_value: >-
     {% set current = states(current_state) %}
-    {% if option_1_entity != none and current == states(option_1_entity) %}
+    {% if option_1_text != '' and current == option_1_text %}
       {{ option_1_color[0] | int }}
-    {% elif option_2_text != "" and current == option_2_text %}
+    {% elif option_2_text != '' and current == option_2_text %}
       {{ option_2_color[0] | int }}
-    {% elif option_3_text != "" and current == option_3_text %}
+    {% elif option_3_text != '' and current == option_3_text %}
       {{ option_3_color[0] | int }}
-    {% elif option_4_text != "" and current == option_4_text %}
+    {% elif option_4_text != '' and current == option_4_text %}
       {{ option_4_color[0] | int }}
     {% endif %}
 
   blink_value: >-
     {% set current = states(current_state) %}
-    {% if option_1_entity != none and current == states(option_1_entity) %}
+    {% if option_1_text != '' and current == option_1_text %}
       {{ option_1_blink | int }}
-    {% elif option_2_text != "" and current == option_2_text %}
+    {% elif option_2_text != '' and current == option_2_text %}
       {{ option_2_blink | int }}
-    {% elif option_3_text != "" and current == option_3_text %}
+    {% elif option_3_text != '' and current == option_3_text %}
       {{ option_3_blink | int }}
-    {% elif option_4_text != "" and current == option_4_text %}
+    {% elif option_4_text != '' and current == option_4_text %}
       {{ option_4_blink | int }}
     {% endif %}
 
 trigger:
   - platform: state
-    entity_id: !input current_state
-  - platform: state
-    entity_id: !input option_1_entity
+    entity_id:
+      - !input current_state
 
 condition: []
 
