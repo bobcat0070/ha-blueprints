@@ -89,7 +89,7 @@ variables:
   color_if_expected: !input "color_if_expected"
   blink_if_expected: !input "blink_if_expected"
   
-  set_color_parameter: '{{ led_number + 20 }}'
+  set_color_parameter_id: '{{ ( led_number + 20 ) }}'
   bit_mask: '{{ ( (1,2,4,8)[led_number - 1] ) }}'
   
   color_value: >-
@@ -125,15 +125,15 @@ action:
   target:
     device_id: !input "zwavejs_device_id"
   data:
-    parameter: {{ set_color_parameter }}
-    value: {{ color_value }}
+    parameter: '{{ set_color_parameter_id }}'
+    value: '{{ color_value }}'
 - service: zwave_js.set_config_parameter
   target:
     device_id: !input "zwavejs_device_id"
   data:
     parameter: '31'
-    value: {{ blink_value }}
-    bitmask: bit_mask
+    value: '{{ blink_value }}'
+    bitmask: '{{ bit_mask }}'
 - service: zwave_js.set_config_parameter
   target:
     device_id: !input "zwavejs_device_id"
