@@ -30,9 +30,8 @@ blueprint:
         entity:
           domain: fan
     prerequisite_entity:
-      name: (OPTIONAL) Prerequisite entity
+      name: Prerequisite entity
       description: If this entity's state is off, it will prevent the automation from running. E.g. sleepmode or away mode.
-      default:
       selector:
         entity:
     min_fan_speed:
@@ -81,11 +80,13 @@ blueprint:
       default: 91
 
 trigger:
-  - entity_id: !input "humidity_sensor"
+  - entity_id: !input humidity_sensor
     platform: state
-  - entity_id: !input "temperature_sensor"
+  - entity_id: !input temperature_sensor
     platform: state
-  - entity_id: !input "fan_control"
+  - entity_id: !input fan_control
+    platform: state
+  - entity_id: !input prerequisite_entity
     platform: state
 
 condition:
