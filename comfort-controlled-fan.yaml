@@ -9,16 +9,14 @@ blueprint:
   input:
     temperature_sensor:
       name: Temperature Sensor
-      description:
-        A sensor that measures the temperature of the area
+      description: A sensor that measures the temperature of the area
       selector:
         entity:
           domain: sensor
           device_class: temperature
     humidity_sensor:
       name: Humidity Sensor
-      description:
-        A sensor that measures the humidity of the area
+      description: A sensor that measures the humidity of the area
       selector:
         entity:
           domain: sensor
@@ -36,8 +34,7 @@ blueprint:
         entity:
     min_fan_speed:
       name: Fan speed lower bound
-      description:
-        The lowest fan speed to use
+      description: The lowest fan speed to use
       selector:
         number:
           min: 0
@@ -47,8 +44,7 @@ blueprint:
       default: 20
     max_fan_speed:
       name: Fan speed upper bound
-      description:
-        The highest fan speed to use
+      description: The highest fan speed to use
       selector:
         number:
           min: 0
@@ -58,8 +54,7 @@ blueprint:
       default: 80
     lower_ssi:
       name: Summer simmer index (SSI) lower bound (°F)
-      description:
-        The SSI at which the lowest fan speed will be active
+      description: The SSI at which the lowest fan speed will be active
       selector:
         number:
           min: 0
@@ -69,8 +64,7 @@ blueprint:
       default: 83
     upper_ssi:
       name: Summer simmer index (SSI) upper bound (°F)
-      description:
-        The SSI at which the highest fan speed will be active
+      description: The SSI at which the highest fan speed will be active
       selector:
         number:
           min: 0
@@ -92,8 +86,6 @@ trigger:
 condition:
   - condition: template
     value_template: "{{ (new_state != curr_state) or (new_speed != curr_speed) }}"
-  - condition: template
-    value_template: "{{ (prerequisite_entity == none) or (states[prerequisite_entity].state == 'on') }}"
 
 action:
   - service: fan.set_percentage
@@ -119,14 +111,14 @@ variables:
   ssi: >
     {% set rh, tF = states(humidity_sensor), states(temperature_sensor) %}
     {% if rh == 'unknown' or tF == 'unknown' %}unknown{% else %}
-    {% set rh, tF = rh|float, tF|float %}
-    {% if is_state_attr(temperature_sensor, 'unit_of_measurement', '°C') %}
-    {% set tF = (tF/5.0*9)+32 %}
-    {% endif %}
-    {{ 1.98*(tF-(0.55-(0.0055*rh))*(tF-58))-56.83 }}
+      {% set rh, tF = rh|float, tF|float %}
+      {% if is_state_attr(temperature_sensor, 'unit_of_measurement', '°C') %}
+        {% set tF = (tF/5.0*9)+32 %}
+      {% endif %}
+      {{ 1.98*(tF-(0.55-(0.0055*rh))*(tF-58))-56.83 }}
     {% endif %}
   new_speed: >
-    {% if ssi|float < lower_ssi|float
+    {% if is_state(prerequisite_entity, 'off') or ssi|float < lower_ssi|float
     %}0{% elif ssi|float > upper_ssi|float
     %}{{ max_fan_speed }}{% else
     %}{{ ((((ssi-lower_ssi)/ssi_range)*fan_range)+min_fan_speed)|int }}{% endif %}
