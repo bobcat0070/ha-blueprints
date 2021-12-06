@@ -200,8 +200,8 @@ action:
   - service: zwave_js.set_config_parameter
     target: !input zwavejs_device_id
     data:
-      value: "{{ color_value }}"
       parameter: "{{ color_parameter }}"
+      value: "{{ color_value }}"
   - service: zwave_js.set_config_parameter
     target: !input zwavejs_device_id
     data:
