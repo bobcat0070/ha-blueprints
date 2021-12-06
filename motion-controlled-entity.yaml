@@ -125,39 +125,51 @@ trigger:
 condition:
   - condition: template
     value_template: "{{ new_state != states[target_entity].state }}"
-  # When entity was already on because the automation ran recently, do not check illuminance because it could have increased above threshold because of a light that was just turned on.
-  - condition: template
-    value_template: "{{ new_state != 'on' or (states[target_entity].state == 'on') or (illuminance_sensor == none) or (illuminance_cutoff == none) or (states[illuminance_sensor].state | int < states[illuminance_cutoff].state | int) }}"
-  - condition: template
-    value_template: "{{ new_state != 'on' or (blocker_entity == none) or (states[blocker_entity].state == 'off') }}"
-  - condition: template
-    value_template: "{{ new_state != 'off' or (turn_off_blocker_entity == none) or (states[turn_off_blocker_entity].state == 'off') }}"
-  - condition: template
-    value_template: >
-      {% set current_time = now().strftime("%H:%M") %}
-
-      {% if time_limit_before == none and time_limit_after == none %}
-        true
-      {% elif time_limit_before != none and time_limit_after == none %}
-        {% set current_time_is_before_limit = current_time < states[time_limit_before].state  %}
-        {{ current_time_is_before_limit }}
-      {% elif time_limit_before == none and time_limit_after != none %}
-        {% set current_time_is_after_limit = current_time > states[time_limit_after].state  %}
-        {{ current_time_is_after_limit }}
-      {% else %}
-        {% set before_limit_is_tomorrow = states[time_limit_before].state < states[time_limit_after].state  %}
-        {% set current_time_is_before_limit = current_time < states[time_limit_before].state  %}
-        {% set current_time_is_after_limit = current_time > states[time_limit_after].state  %}
-        {% set time_window_spans_midnight = states[time_limit_after].state > states[time_limit_before].state  %}
-        {% if time_window_spans_midnight != none and time_window_spans_midnight and before_limit_is_tomorrow %}
-          {{ current_time_is_after_limit or current_time_is_before_limit }}
-        {% elif time_window_spans_midnight != none and not time_window_spans_midnight %}
-          {{ current_time_is_before_limit and current_time_is_after_limit }}
-        {% endif %}
-      {% endif %}
 
 action:
-  - service: homeassistant.turn_{{new_state}}
-    target:
-      entity_id: >-
-        {{ target_off_entity if new_state == 'off' and target_off_entity != none else target_entity }}
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ new_state == 'on' }}"
+            # When entity was already on because the automation ran recently, do not check illuminance because it could have increased above threshold because of a light that was just turned on.
+          - condition: template
+            value_template: "{{ (states[target_entity].state == 'on') or (illuminance_sensor == none) or (illuminance_cutoff == none) or (states[illuminance_sensor].state | int < states[illuminance_cutoff].state | int) }}"
+          - condition: template
+            value_template: "{{ (blocker_entity == none) or (states[blocker_entity].state == 'off') }}"
+          - condition: template
+            value_template: >
+              {% set current_time = now().strftime("%H:%M") %}
+
+              {% if time_limit_before == none and time_limit_after == none %}
+                true
+              {% elif time_limit_before != none and time_limit_after == none %}
+                {% set current_time_is_before_limit = current_time < states[time_limit_before].state  %}
+                {{ current_time_is_before_limit }}
+              {% elif time_limit_before == none and time_limit_after != none %}
+                {% set current_time_is_after_limit = current_time > states[time_limit_after].state  %}
+                {{ current_time_is_after_limit }}
+              {% else %}
+                {% set before_limit_is_tomorrow = states[time_limit_before].state < states[time_limit_after].state  %}
+                {% set current_time_is_before_limit = current_time < states[time_limit_before].state  %}
+                {% set current_time_is_after_limit = current_time > states[time_limit_after].state  %}
+                {% set time_window_spans_midnight = states[time_limit_after].state > states[time_limit_before].state  %}
+                {% if time_window_spans_midnight != none and time_window_spans_midnight and before_limit_is_tomorrow %}
+                  {{ current_time_is_after_limit or current_time_is_before_limit }}
+                {% elif time_window_spans_midnight != none and not time_window_spans_midnight %}
+                  {{ current_time_is_before_limit and current_time_is_after_limit }}
+                {% endif %}
+              {% endif %}
+        sequence:
+          - service: homeassistant.turn_on
+            target:
+              entity_id: "{{target_entity}}"
+
+      - conditions:
+          - condition: template
+            value_template: "{{ new_state == 'off' }}"
+          - condition: template
+            value_template: "{{ (turn_off_blocker_entity == none) or (states[turn_off_blocker_entity].state == 'off') }}"
+        sequence:
+          - service: homeassistant.turn_off
+            target:
+              entity_id: "{{ target_off_entity if target_off_entity != none else target_entity }}"
