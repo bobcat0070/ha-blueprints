@@ -161,7 +161,7 @@ variables:
   option_4_color: !input option_4_color
   option_4_blink: !input option_4_blink
 
-  led_number: "{{ status_led[-1] }}"
+  led_number: "{{ status_led[-1] | int }}"
   color_parameter: "{{ ( led_number + 20 ) }}"
   blink_bitmask: "{{ ( (1,2,4,8)[led_number - 1] ) }}"
 

@@ -18,7 +18,7 @@ blueprint:
       name: Key Up/Down orientation
       description: The key-up scene button varies for some devices. Toggle this value
         when the up/down buttons are inverted.
-      default: true
+      default: false
       selector:
         boolean:
     key_up:
