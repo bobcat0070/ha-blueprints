@@ -1,3 +1,5 @@
+# Original source: https://community.home-assistant.io/t/switch-a-fan-based-on-absolute-humidity-differnece-between-two-humid-temp-sensors/305686
+
 blueprint:
   name: Humidity Controlled Fan
   description:

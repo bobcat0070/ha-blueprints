@@ -1,4 +1,5 @@
-# Source: https://community.home-assistant.io/t/window-open-climate-off/257293
+# Original source: https://community.home-assistant.io/t/window-open-climate-off/257293
+
 blueprint:
   name: Window open, climate off after a defined time
   description:

@@ -1,3 +1,5 @@
+# Original source: https://community.home-assistant.io/t/turn-on-light-switch-scene-script-or-group-based-on-motion-and-illuminance-more-conditions/257085
+
 blueprint:
   name: Turn on light, switch, scene, script or group based on motion and illuminance.
   description: >

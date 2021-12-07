@@ -1,4 +1,5 @@
-# Source: https://community.home-assistant.io/t/water-leakage-notification-blueprint/273031
+# Original source: https://community.home-assistant.io/t/water-leakage-notification-blueprint/273031
+
 blueprint:
   name: Leak detection & notifier
   description: Send a notification when any configured moisture sensor becomes moist
