@@ -143,6 +143,14 @@ blueprint:
         boolean:
       default:
 
+mode: single
+
+trigger:
+  - platform: state
+    entity_id:
+      - !input current_state
+      - !input option_1_entity
+
 variables:
   zwavejs_device_id: !input zwavejs_device_id
   status_led: !input status_led
@@ -163,7 +171,7 @@ variables:
 
   led_number: "{{ status_led[-1] | int }}"
   color_parameter: "{{ ( led_number + 20 ) }}"
-  blink_bitmask: "{{ ( (1,2,4,8)[led_number - 1] ) }}"
+  blink_bitmask: "{{ ( (1,2,4,8,16,32,64)[led_number - 1] ) }}"
 
   color_value: >-
     {% set current = states(current_state) %}
@@ -189,12 +197,6 @@ variables:
       {{ option_4_blink | int }}
     {% endif %}
 
-trigger:
-  - platform: state
-    entity_id:
-      - !input current_state
-      - !input option_1_entity
-
 condition: []
 
 action:
@@ -214,4 +216,3 @@ action:
     data:
       parameter: "13"
       value: "1"
-mode: single
