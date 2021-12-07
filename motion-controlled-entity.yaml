@@ -101,6 +101,16 @@ blueprint:
 mode: restart
 max_exceeded: silent
 
+trigger:
+  - platform: state
+    entity_id: !input motion_sensor
+    to: "on"
+  - platform: state
+    entity_id: !input motion_sensor
+    to: "off"
+    for:
+      minutes: !input no_motion_wait
+
 variables:
   target_entity: !input target_entity
   illuminance_sensor: !input illuminance_sensor
@@ -111,16 +121,6 @@ variables:
   turn_off_blocker_entity: !input turn_off_blocker_entity
   target_off_entity: !input target_off_entity
   new_state: "{{ trigger.to_state.state }}"
-
-trigger:
-  - platform: state
-    entity_id: !input motion_sensor
-    to: "on"
-  - platform: state
-    entity_id: !input motion_sensor
-    to: "off"
-    for:
-      minutes: !input no_motion_wait
 
 condition:
   - condition: template

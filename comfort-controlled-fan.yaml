@@ -73,26 +73,15 @@ blueprint:
           step: 1
       default: 91
 
+mode: single
+
 trigger:
-  - entity_id: !input humidity_sensor
-    platform: state
-  - entity_id: !input temperature_sensor
-    platform: state
-  - entity_id: !input fan_control
-    platform: state
-  - entity_id: !input prerequisite_entity
-    platform: state
-
-condition:
-  - condition: template
-    value_template: "{{ (new_state != curr_state) or (new_speed != curr_speed) }}"
-
-action:
-  - service: fan.set_percentage
-    target:
-      entity_id: !input "fan_control"
-    data:
-      percentage: "{{ new_speed }}"
+  - platform: state
+    entity_id:
+      - !input humidity_sensor
+      - !input temperature_sensor
+      - !input fan_control
+      - !input prerequisite_entity
 
 variables:
   temperature_sensor: !input temperature_sensor
@@ -124,4 +113,14 @@ variables:
     %}{{ ((((ssi-lower_ssi)/ssi_range)*fan_range)+min_fan_speed)|int }}{% endif %}
   new_state: >
     {% if new_speed > 0 %}on{% else %}off{% endif %}
-mode: single
+
+condition:
+  - condition: template
+    value_template: "{{ (new_state != curr_state) or (new_speed != curr_speed) }}"
+
+action:
+  - service: fan.set_percentage
+    target:
+      entity_id: !input "fan_control"
+    data:
+      percentage: "{{ new_speed }}"

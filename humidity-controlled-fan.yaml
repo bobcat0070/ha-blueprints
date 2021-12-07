@@ -5,15 +5,6 @@ blueprint:
   source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/humidity-controlled-fan.yaml
   domain: automation
   input:
-    humidity_sensor:
-      name: Humidity Sensor
-      description:
-        A sensor that measures the humidity of the area to be vented, for
-        example the shower
-      selector:
-        entity:
-          domain: sensor
-          device_class: humidity
     temperature_sensor:
       name: Temperature Sensor
       description:
@@ -23,16 +14,15 @@ blueprint:
         entity:
           domain: sensor
           device_class: temperature
-    reference_humidity_sensor:
-      name: Reference Humidity Sensor
+    humidity_sensor:
+      name: Humidity Sensor
       description:
-        A sensor that indicates the baseline humidity of the area outside
-        of the vented, for example the walkway outside the shower
+        A sensor that measures the humidity of the area to be vented, for
+        example the shower
       selector:
         entity:
           domain: sensor
           device_class: humidity
-      default: []
     reference_temperature_sensor:
       name: Reference Temperature Sensor
       description:
@@ -42,6 +32,16 @@ blueprint:
         entity:
           domain: sensor
           device_class: temperature
+      default: []
+    reference_humidity_sensor:
+      name: Reference Humidity Sensor
+      description:
+        A sensor that indicates the baseline humidity of the area outside
+        of the vented, for example the walkway outside the shower
+      selector:
+        entity:
+          domain: sensor
+          device_class: humidity
       default: []
     fan_switch:
       name: Fan Switch
@@ -73,23 +73,17 @@ blueprint:
           mode: slider
           step: 0.1
       default: 0.9
+
+mode: single
+
 trigger:
-  - entity_id: !input "humidity_sensor"
-    platform: state
-  - entity_id: !input "temperature_sensor"
-    platform: state
-  - entity_id: !input "reference_humidity_sensor"
-    platform: state
-  - entity_id: !input "reference_temperature_sensor"
-    platform: state
-  - entity_id: !input "fan_switch"
-    platform: state
-condition:
-  - condition: template
-    value_template: "{{ mode != switch_state }}"
-action:
-  - service: switch.turn_{{mode}}
-    entity_id: !input "fan_switch"
+  - entity_id:
+      - !input "temperature_sensor"
+      - !input "humidity_sensor"
+      - !input "reference_temperature_sensor"
+      - !input "reference_humidity_sensor"
+      - !input "fan_switch"
+
 variables:
   temperature_sensor: !input "temperature_sensor"
   humidity_sensor: !input "humidity_sensor"
@@ -122,4 +116,11 @@ variables:
     {% if switch_state == 'off' and difference|float > rising_threshold|float
     %}on{% elif switch_state == 'on' and difference|float > falling_threshold|float
     %}on{% else %}off{% endif %}
-mode: single
+
+condition:
+  - condition: template
+    value_template: "{{ mode != switch_state }}"
+
+action:
+  - service: switch.turn_{{mode}}
+    entity_id: !input "fan_switch"
