@@ -24,6 +24,12 @@ blueprint:
       default: []
       selector:
         action: {}
+    keypad_lock:
+      name: Keypad lock Operation
+      description: Keypad lock by any user
+      default: []
+      selector:
+        action: {}
     keypad_unlock:
       name: Keypad Unlock Operation
       description: Keypad Unlock by any user
@@ -243,6 +249,8 @@ action:
         sequence: !input "manual_lock"
       - conditions: '{{ lock_operation == "Manual unlock operation" }}'
         sequence: !input "manual_unlock"
+      - conditions: '{{ lock_operation == "Keypad lock operation" }}'
+        sequence: !input "keypad_lock"
       - conditions: '{{ lock_operation == "Keypad unlock operation" }}'
         sequence: !input "keypad_unlock"
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 1 }}'
