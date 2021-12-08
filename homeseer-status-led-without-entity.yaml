@@ -149,6 +149,9 @@ trigger:
   - platform: state
     entity_id:
       - !input current_state
+  - platform: homeassistant
+    event: start
+    id: "start"
 
 variables:
   zwavejs_device_id: !input zwavejs_device_id
