@@ -107,11 +107,16 @@ trigger:
   - platform: state
     entity_id: !input motion_sensor
     to: "on"
+    id: "on"
   - platform: state
     entity_id: !input motion_sensor
     to: "off"
     for:
       minutes: !input no_motion_wait
+    id: "off"
+  - platform: homeassistant
+    event: start
+    id: "start"
 
 variables:
   target_entity: !input target_entity
@@ -122,17 +127,12 @@ variables:
   time_limit_after: !input time_limit_after
   turn_off_blocker_entity: !input turn_off_blocker_entity
   target_off_entity: !input target_off_entity
-  new_state: "{{ trigger.to_state.state }}"
-
-condition:
-  - condition: template
-    value_template: "{{ new_state != states[target_entity].state }}"
 
 action:
   - choose:
       - conditions:
-          - condition: template
-            value_template: "{{ new_state == 'on' }}"
+          - condition: trigger
+            id: "on"
             # When entity was already on because the automation ran recently, do not check illuminance because it could have increased above threshold because of a light that was just turned on.
           - condition: template
             value_template: "{{ (states[target_entity].state == 'on') or (illuminance_sensor == none) or (illuminance_cutoff == none) or (states[illuminance_sensor].state | int < states[illuminance_cutoff].state | int) }}"
@@ -167,11 +167,25 @@ action:
               entity_id: "{{target_entity}}"
 
       - conditions:
-          - condition: template
-            value_template: "{{ new_state == 'off' }}"
+          - condition: trigger
+            id: "off"
           - condition: template
             value_template: "{{ (turn_off_blocker_entity == none) or (states[turn_off_blocker_entity].state == 'off') }}"
         sequence:
+          - service: homeassistant.turn_off
+            target:
+              entity_id: "{{ target_off_entity if target_off_entity != none else target_entity }}"
+
+      # If HA was restarted and light is on, set a timer to turn it off.
+      # Timer will be canceled if motion happens (by restarting).
+      - conditions:
+          - condition: trigger
+            id: "start"
+          - condition: template
+            value_template: "{{ states[target_entity].state == 'on' }}"
+        sequence:
+          - delay:
+              minutes: !input no_motion_wait
           - service: homeassistant.turn_off
             target:
               entity_id: "{{ target_off_entity if target_off_entity != none else target_entity }}"
