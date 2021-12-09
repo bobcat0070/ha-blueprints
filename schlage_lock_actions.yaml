@@ -17,205 +17,205 @@ blueprint:
       description: Manually locking thumbturn
       default: []
       selector:
-        action: {}
+        action:
     manual_unlock:
       name: Manual Unlock Operation
       description: Manually unlocking thumbturn
       default: []
       selector:
-        action: {}
+        action:
     keypad_lock:
       name: Keypad lock Operation
       description: Keypad lock by any user
       default: []
       selector:
-        action: {}
+        action:
     keypad_unlock:
       name: Keypad Unlock Operation
       description: Keypad Unlock by any user
       default: []
       selector:
-        action: {}
+        action:
     user_1:
       name: User Code Slot 1
       description: First Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_2:
       name: User Code Slot 2
       description: Second Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_3:
       name: User Code Slot 3
       description: Third Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_4:
       name: User Code Slot 4
       description: Fourth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_5:
       name: User Code Slot 5
       description: Fifth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_6:
       name: User Code Slot 6
       description: Sixth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_7:
       name: User Code Slot 7
       description: Seventh Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_8:
       name: User Code Slot 8
       description: Eighth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_9:
       name: User Code Slot 9
       description: Ninth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_10:
       name: User Code Slot 10
       description: Tenth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_11:
       name: User Code Slot 11
       description: Eleventh Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_12:
       name: User Code Slot 12
       description: Twelfth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_13:
       name: User Code Slot 13
       description: First Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_14:
       name: User Code Slot 14
       description: First Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_15:
       name: User Code Slot 15
       description: First Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_16:
       name: User Code Slot 16
       description: Sixteenth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_17:
       name: User Code Slot 17
       description: Seventeenth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_18:
       name: User Code Slot 18
       description: Eighteenth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_19:
       name: User Code Slot 19
       description: Nineteenth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_20:
       name: User Code Slot 20
       description: Twentieth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_21:
       name: User Code Slot 21
       description: Twenty-first Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_22:
       name: User Code Slot 22
       description: Twenty-second Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_23:
       name: User Code Slot 23
       description: Twenty-third Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_24:
       name: User Code Slot 24
       description: Twenty-fourth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_25:
       name: User Code Slot 25
       description: Twenty-fifth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_26:
       name: User Code Slot 26
       description: Twenty-sixth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_27:
       name: User Code Slot 27
       description: Twenty-seventh Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_28:
       name: User Code Slot 28
       description: Twenty-eigth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_29:
       name: User Code Slot 29
       description: Twenty-ninth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
     user_30:
       name: User Code Slot 30
       description: Thirtieth Usercode Slot
       default: []
       selector:
-        action: {}
+        action:
 
 mode: single
 max_exceeded: silent
@@ -227,7 +227,8 @@ trigger:
 variables:
   device_id: !input "schlage_lock"
 
-condition: "{{ trigger.event.data.device_id == device_id }}"
+condition: >-
+  {{ trigger.event.data.device_id == device_id and trigger.event.data.command_class_name == 'Notification' }}
 
 action:
   - variables:
@@ -236,13 +237,8 @@ action:
 
   - service: logbook.log
     data:
-      name: User Code
-      message: "{{ user_code }}"
-
-  - service: logbook.log
-    data:
-      name: Device
-      message: "{{ device_id }}"
+      name: Schlage Lock Actions
+      message: "{{user_code}} - {{lock_operation}} - {{device_id}}"
 
   - choose:
       - conditions: '{{ lock_operation == "Manual lock operation" }}'
