@@ -84,6 +84,8 @@ trigger:
       - !input temperature_sensor
       - !input fan_control
       - !input prerequisite_entity
+  - platform: homeassistant
+    event: start
 
 variables:
   temperature_sensor: !input temperature_sensor

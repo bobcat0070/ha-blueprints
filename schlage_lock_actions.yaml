@@ -235,11 +235,6 @@ action:
       user_code: "{{ trigger.event.data.parameters.userId }}"
       lock_operation: "{{ trigger.event.data.event_label }}"
 
-  - service: logbook.log
-    data:
-      name: Schlage Lock Actions
-      message: "{{user_code}} - {{lock_operation}} - {{device_id}}"
-
   - choose:
       - conditions: '{{ lock_operation == "Manual lock operation" }}'
         sequence: !input "manual_lock"
