@@ -49,7 +49,6 @@ blueprint:
       description: A switch that turns the fan on and off
       selector:
         entity:
-          domain: switch
     rising_threshold:
       name: Rising Threshold (in g/m3)
       description:
@@ -126,5 +125,6 @@ condition:
     value_template: "{{ mode != switch_state }}"
 
 action:
-  - service: switch.turn_{{mode}}
-    entity_id: !input "fan_switch"
+  - service: homeassistant.turn_{{mode}}
+    target:
+      entity_id: !input "fan_switch"
