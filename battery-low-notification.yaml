@@ -16,13 +16,13 @@ blueprint:
         number:
           min: 5.0
           max: 100.0
-          unit_of_measurement: '%'
+          unit_of_measurement: "%"
           mode: slider
           step: 5.0
     time:
       name: Time to test on
       description: Test is run at configured time
-      default: '10:00:00'
+      default: "10:00:00"
       selector:
         time:
     day:
@@ -50,10 +50,17 @@ blueprint:
         the names of sensors being low on battery.
       selector:
         action:
+
+mode: single
+
+trigger:
+  - platform: time
+    at: !input "time"
+
 variables:
-  day: !input 'day'
-  threshold: !input 'threshold'
-  exclude: !input 'exclude'
+  day: !input "day"
+  threshold: !input "threshold"
+  exclude: !input "exclude"
   sensors: >-
     {% set result = namespace(sensors=[]) %}
     {% for state in states.sensor | selectattr('attributes.device_class', '==', 'battery') %}
@@ -67,12 +74,10 @@ variables:
       {% endif %}
     {% endfor %}
     {{ result.sensors|join('\n') }}
-trigger:
-- platform: time
-  at: !input 'time'
+
 condition:
-- '{{ sensors != "" and (day | int == 0 or day | int == now().isoweekday()) }}'
+  - '{{ sensors != "" and (day | int == 0 or day | int == now().isoweekday()) }}'
+
 action:
-- choose: []
-  default: !input 'actions'
-mode: single
+  - choose: []
+    default: !input "actions"

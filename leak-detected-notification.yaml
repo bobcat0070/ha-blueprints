@@ -13,22 +13,24 @@ blueprint:
         device:
           integration: mobile_app
 
-mode: single
+mode: parallel
+max: 10
 
 trigger:
-- event_data: {}
-  event_type: state_changed
-  platform: event
+  # TODO - this is inefficient!
+  - platform: event
+    event_type: state_changed
+    event_data: {}
 
 condition:
-- condition: template
-  value_template: '{{ trigger.event.data.new_state.attributes.device_class == "moisture" }}'
-- condition: template
-  value_template: '{{ trigger.event.data.new_state.state == "on" }}'
+  - condition: template
+    value_template: '{{ trigger.event.data.new_state.attributes.device_class == "moisture" }}'
+  - condition: template
+    value_template: '{{ trigger.event.data.new_state.state == "on" }}'
 
 action:
-  domain: mobile_app
-  type: notify
-  device_id: !input 'notify_device'
-  message: '{{ trigger.event.data.new_state.attributes.friendly_name }} has detected a leak.'
-  title: Leak detected!
+  - domain: mobile_app
+    type: notify
+    device_id: !input "notify_device"
+    title: Leak detected!
+    message: "{{ trigger.event.data.new_state.attributes.friendly_name }} has detected a leak."

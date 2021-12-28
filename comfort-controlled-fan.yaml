@@ -127,4 +127,4 @@ action:
     target:
       entity_id: !input "fan_control"
     data:
-      percentage: "{{ new_speed }}"
+      percentage: "{{new_speed}}"
