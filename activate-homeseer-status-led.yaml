@@ -43,6 +43,8 @@ mode: queued
 trigger:
   - platform: state
     entity_id: !input "color_entity"
+  - platform: state
+    entity_id: !input "blink_entity"
   - platform: homeassistant
     event: start
     id: "start"
@@ -55,7 +57,7 @@ variables:
 
   led_number: "{{ status_led[-1] | int }}"
   color_value: "{{ states(color_entity) }}"
-  blink_value: "{{ states(blink_entity) }}"
+  blink_value: "{% if is_state(blink_entity, 'on') %}1{% else %}0{% endif %}"
   color_parameter: "{{ ( led_number + 20 ) }}"
   blink_bitmask: "{{ ( (1,2,4,8,16,32,64)[led_number - 1] ) }}"
 
