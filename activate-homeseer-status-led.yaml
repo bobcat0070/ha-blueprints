@@ -29,12 +29,12 @@ blueprint:
       name: Input number containing LED status color
       description: TODO
       selector:
-        input_number:
+        number:
     blink_value:
       name: Input number containing LED status color
       description: TODO
       selector:
-        input_boolean:
+        boolean:
 
 mode: single
 
