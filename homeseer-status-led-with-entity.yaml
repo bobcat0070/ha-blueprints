@@ -191,13 +191,13 @@ variables:
   blink_value: >-
     {% set current = states(current_state) %}
     {% if option_1_entity != none and current == states(option_1_entity) %}
-      {{ option_1_blink | bool }}
+      {{ option_1_blink }}
     {% elif option_2_text != '' and current == option_2_text %}
-      {{ option_2_blink | bool }}
+      {{ option_2_blink }}
     {% elif option_3_text != '' and current == option_3_text %}
-      {{ option_3_blink | bool }}
+      {{ option_3_blink }}
     {% elif option_4_text != '' and current == option_4_text %}
-      {{ option_4_blink | bool }}
+      {{ option_4_blink }}
     {% endif %}
 
 condition: []

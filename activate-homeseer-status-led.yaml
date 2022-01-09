@@ -25,24 +25,24 @@ blueprint:
             - LED5
             - LED6
             - LED7
-    color_value:
-      name: Input number containing LED status color
+    color_entity:
+      name: Input number containing LED status color value
       description: TODO
       selector:
-        number:
-    blink_value:
-      name: Input number containing LED status color
+        entity:
+#          domain: input_number
+    blink_entity:
+      name: Input boolean containing LED status blink value
       description: TODO
       selector:
-        boolean:
+        entity:
+#          domain: input_boolean
 
-mode: single
+mode: queued
 
 trigger:
   - platform: state
-    entity_id:
-      - !input "color_value"
-      - !input "blink_value"
+    entity_id: !input "color_entity"
   - platform: homeassistant
     event: start
     id: "start"
@@ -50,10 +50,12 @@ trigger:
 variables:
   zwavejs_device_id: !input "zwavejs_device_id"
   status_led: !input "status_led"
-  color_value: !input "color_value"
-  blink_value: !input "blink_value"
+  color_entity: !input "color_entity"
+  blink_entity: !input "blink_entity"
 
   led_number: "{{ status_led[-1] | int }}"
+  color_value: "{{ states(color_entity) }}"
+  blink_value: "{{ states(blink_entity) }}"
   color_parameter: "{{ ( led_number + 20 ) }}"
   blink_bitmask: "{{ ( (1,2,4,8,16,32,64)[led_number - 1] ) }}"
 
