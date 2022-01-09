@@ -1,7 +1,7 @@
 blueprint:
   name: Activate HomeSeer status LEDs
   description: TODO
-  source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/homeseer-activate-status-led.yaml
+  source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/activate-homeseer-status-led.yaml
   domain: automation
   input:
     zwavejs_device_id:
