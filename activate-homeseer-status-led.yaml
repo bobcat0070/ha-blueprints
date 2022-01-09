@@ -30,13 +30,13 @@ blueprint:
       description: TODO
       selector:
         entity:
-#          domain: input_number
+          domain: input_number
     blink_entity:
       name: Input boolean containing LED status blink value
       description: TODO
       selector:
         entity:
-#          domain: input_boolean
+          domain: input_boolean
 
 mode: queued
 
