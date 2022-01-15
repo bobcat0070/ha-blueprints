@@ -81,7 +81,7 @@ variables:
   blocker_entity: !input 'blocker_entity'
 
   current_mode: '{{ states(hvac_entity) }}'
-  desired_mode: '{% if states(window_entity) == "on" %}off{% else %}{{ states(hvac_mode_entity) }}{% endif %}'
+  desired_mode: '{% if is_state(window_entity, "on") %}off{% else %}{{ states(hvac_mode_entity) }}{% endif %}'
 
 condition:
 - condition: template
@@ -107,7 +107,7 @@ action:
 - choose:
   - conditions:
     - condition: template
-      value_template: '{{ speaker_entity != none and (blocker_entity == none or states(blocker_entity) == "off") }}'
+      value_template: '{{ speaker_entity != none and (blocker_entity == none or is_state(blocker_entity, "off")) }}'
     sequence:
     - service: tts.google_translate_say
       data:
