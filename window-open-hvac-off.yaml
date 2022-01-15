@@ -12,7 +12,7 @@ blueprint:
           domain: climate
     hvac_mode_entity:
       name: HVAC mode
-      description: "'input_select' used to save the HVAC mode before turning it off."
+      description: '"input_select" used to save the HVAC mode before turning it off.'
       default:
       selector:
         entity:
@@ -58,59 +58,59 @@ blueprint:
       selector:
         entity:
 
-mode: restart
+mode: queued
 max_exceeded: silent
 
 trigger:
 - platform: state
-  entity_id: !input "window_entity"
-  to: "on"
-  for: !input "minimum_open_time"
+  entity_id: !input 'window_entity'
+  to: 'on'
+  for: !input 'minimum_open_time'
 - platform: state
-  entity_id: !input "window_entity"
-  to: "off"
-  for: !input "minimum_closed_time"
+  entity_id: !input 'window_entity'
+  to: 'off'
+  for: !input 'minimum_closed_time'
 - platform: homeassistant
   event: start
 
 variables:
-  hvac_entity: !input "hvac_entity"
-  hvac_mode_entity: !input "hvac_mode_entity"
-  window_entity: !input "window_entity"
-  speaker_entity: !input "speaker_entity"
-  blocker_entity: !input "blocker_entity"
+  hvac_entity: !input 'hvac_entity'
+  hvac_mode_entity: !input 'hvac_mode_entity'
+  window_entity: !input 'window_entity'
+  speaker_entity: !input 'speaker_entity'
+  blocker_entity: !input 'blocker_entity'
 
-  current_mode: "{{ states(hvac_entity) }}"
-  desired_mode: "{% if states(window_entity) == 'on' %}off{% else %}{{ states(hvac_mode_entity) }}{% endif %}"
+  current_mode: '{{ states(hvac_entity) }}'
+  desired_mode: '{% if states(window_entity) == "on" %}off{% else %}{{ states(hvac_mode_entity) }}{% endif %}'
 
 condition:
 - condition: template
-  value_template: "{{ current_mode != desired_mode }}"
+  value_template: '{{ current_mode != desired_mode }}'
 
 action:
 - service: climate.set_hvac_mode
   target:
-    entity_id: "{{hvac_entity}}"
+    entity_id: '{{hvac_entity}}'
   data:
-    hvac_mode: "{{desired_mode}}"
+    hvac_mode: '{{desired_mode}}'
 - choose:
   - conditions:
     - condition: template
-      value_template: "{{current_mode != 'off' }"
+      value_template: '{{current_mode != "off" }}'
     sequence:
     - service: input_select.select_option
       target:
-        entity_id: "{{hvac_mode_entity}}"
+        entity_id: '{{hvac_mode_entity}}'
       data:
-        option: "{{current_mode}}"
+        option: '{{current_mode}}'
   default: []
 - choose:
   - conditions:
     - condition: template
-      value_template: "{{ speaker_entity != none and (blocker_entity == none or states(blocker_entity) == 'off') }}"
+      value_template: '{{ speaker_entity != none and (blocker_entity == none or states(blocker_entity) == "off") }}'
     sequence:
     - service: tts.google_translate_say
       data:
-        entity_id: "{{speaker_entity}}"
+        entity_id: '{{speaker_entity}}'
         message: HVAC mode changed to {{desired_mode}}
   default: []
