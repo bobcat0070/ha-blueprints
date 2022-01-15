@@ -16,7 +16,7 @@ blueprint:
           integration: zwave_js
           entity:
             domain: sensor
-    inverted-orientation:
+    inverted_orientation:
       name: Key Up/Down orientation
       description: The key-up scene button varies for some devices. Toggle this value
         when the up/down buttons are inverted.
@@ -130,9 +130,9 @@ mode: restart
 max_exceeded: silent
 variables:
   zwavejs_device_id: !input 'zwavejs_device_id'
-  inverted-orientation: !input 'inverted-orientation'
-  key_up_scene_id: '{{ ( (1,2)[inverted-orientation] | int ) }}'
-  key_down_scene_id: '{{ ( (2,1)[inverted-orientation] | int ) }}'
+  inverted_orientation: !input 'inverted_orientation'
+  key_up_scene_id: '{{ ( (1,2)[inverted_orientation] | int ) }}'
+  key_down_scene_id: '{{ ( (2,1)[inverted_orientation] | int ) }}'
   is_loop_for_key_up_held: !input 'is_loop_for_key_up_held'
   is_loop_for_key_down_held: !input 'is_loop_for_key_down_held'
 trigger:
