@@ -1,26 +1,33 @@
-# Original source: https://community.home-assistant.io/t/window-open-climate-off/257293
-
 blueprint:
-  name: Window open, climate off after a defined time
-  description:
-    An automation that turns off a running your climate device for exmple
-    a heater or an air conditioning if a window sensor is open for a specific time.
-    It waits until the window is closed again in order to turn the climate entity
-    on again.
+  name: Turn off HVAC if windows or doors are open.
+  description: TODO
   source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/window-open-climate-off.yaml
   domain: automation
   input:
-    window_entity:
-      name: Window Sensor
-      description: The window sensor that controls the climate entity.
+    climate_entity:
+      name: Climate entity to control
+      description: TODO
+      selector:
+        entity:
+          domain: climate
+    climate_mode_entity:
+      name: Climate mode entity
+      description: 'input_select' used to save the climate mode before turning it off.
+      default:
+      selector:
+        entity:
+          domain: input_select
+    window_door_entity:
+      name: Window and door entity
+      description: TODO
       selector:
         entity:
           domain: binary_sensor
-          device_class: window
+          #device_class: window
     minimum_open_time:
-      name: Miniumum time the window is open
-      description: Time in seconds to wait until the automation is triggered
-      default: 120
+      name: Minimum time a window or door is open
+      description: Time in seconds to wait until the climate system is turned off.
+      default: 180
       selector:
         number:
           min: 0.0
@@ -28,30 +35,61 @@ blueprint:
           unit_of_measurement: seconds
           mode: slider
           step: 1.0
-    climate_target:
-      name: Climate Device
-      description: The climate entity that is controlled by the window sensor.
+    minimum_closed_time:
+      name: Minimum time all windows and doors are closed
+      description: Time in seconds to wait until the climate system is turned on.
+      default: 60
       selector:
-        entity:
-          domain: climate
+        number:
+          min: 0.0
+          max: 300.0
+          unit_of_measurement: seconds
+          mode: slider
+          step: 1.0
+
+mode: restart
+max_exceeded: silent
+
 trigger:
   - platform: state
-    entity_id: !input "window_entity"
+    entity_id: !input "window_door_entity"
     to: "on"
     for: !input "minimum_open_time"
+  - platform: state
+    entity_id: !input "window_door_entity"
+    to: "off"
+    for: !input "minimum_closed_time"
+  - platform: homeassistant
+    event: start
+    id: "start"
+
+variables:
+  climate_entity: !input "climate_entity"
+  climate_mode_entity: !input "climate_mode_entity"
+  window_door_entity: !input "window_door_entity"
+
+  current_mode: {{ states[climate_entity] }}
+  desired_mode: >
+    {% if states[window_door_entity] == 'on' %}
+      off
+    {% else %}
+      {{ states[climate_mode_entity] }}
+    {% endif %}
+
 condition:
-  - condition: not
-    conditions:
-      - condition: state
-        entity_id: !input "climate_target"
-        state: "off"
+  - condition: template
+    value_template: '{{ current_mode != desired_mode }}'
+
 action:
-  - service: climate.turn_off
-    entity_id: !input "climate_target"
-  - wait_for_trigger:
-      - platform: state
-        entity_id: !input "window_entity"
-        to: "off"
-    continue_on_timeout: false
-  - service: climate.turn_on
-    entity_id: !input "climate_target"
+  - service: climate.set_hvac_mode
+    target:
+      entity_id: {{climate_entity}}
+    data:
+      hvac_mode: {{desired_mode}}
+  - condition: template
+    value_template: {{current_mode != 'off' }}
+  - service: input_select.select_option
+    target:
+      entity_id: {{climate_mode_entity}}
+    data:
+      option: {{current_mode}}
