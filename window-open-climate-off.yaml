@@ -12,7 +12,8 @@ blueprint:
           domain: climate
     climate_mode_entity:
       name: Climate mode entity
-      description: 'input_select' used to save the climate mode before turning it off.
+      description: >
+        'input_select' used to save the climate mode before turning it off.
       default:
       selector:
         entity:
