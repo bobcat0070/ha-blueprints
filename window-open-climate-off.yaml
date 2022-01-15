@@ -69,7 +69,7 @@ variables:
   climate_mode_entity: !input "climate_mode_entity"
   window_door_entity: !input "window_door_entity"
 
-  current_mode: {{ states[climate_entity] }}
+  current_mode: "{{ states[climate_entity] }}"
   desired_mode: >
     {% if states[window_door_entity] == 'on' %}
       off
