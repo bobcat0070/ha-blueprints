@@ -1,0 +1,123 @@
+blueprint:
+  name: Turn off HVAC when windows are open.
+  description: TODO
+  source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/window-open-hvac-off.yaml
+  domain: automation
+  input:
+    hvac_entity:
+      name: HVAC
+      description: TODO
+      selector:
+        entity:
+          domain: climate
+    hvac_mode_entity:
+      name: HVAC mode
+      description: >
+        'input_select' used to save the HVAC mode before turning it off.
+      default:
+      selector:
+        entity:
+          domain: input_select
+    window_entity:
+      name: Window
+      description: TODO
+      selector:
+        entity:
+          domain: binary_sensor
+          device_class: window
+    minimum_open_time:
+      name: Minimum time a window is open
+      description: Time in seconds to wait until the HVAC is turned off.
+      default: 180
+      selector:
+        number:
+          min: 0.0
+          max: 300.0
+          unit_of_measurement: seconds
+          mode: slider
+          step: 1.0
+    minimum_closed_time:
+      name: Minimum time all windows are closed
+      description: Time in seconds to wait until the HVAC is turned on.
+      default: 60
+      selector:
+        number:
+          min: 0.0
+          max: 300.0
+          unit_of_measurement: seconds
+          mode: slider
+          step: 1.0
+    speaker_entity:
+      name: (OPTIONAL) Speaker
+      description: Speaker used to announce HVAC mode changes.
+      selector:
+        entity:
+          domain: media_player
+    blocker_entity:
+      name: (OPTIONAL) Blocking entity
+      description: If this entity's state is on, it will prevent announcments from being made.
+      selector:
+        entity:
+
+mode: restart
+max_exceeded: silent
+
+trigger:
+  - platform: state
+    entity_id: !input "window_entity"
+    to: "on"
+    for: !input "minimum_open_time"
+  - platform: state
+    entity_id: !input "window_entity"
+    to: "off"
+    for: !input "minimum_closed_time"
+  - platform: homeassistant
+    event: start
+    id: "start"
+
+variables:
+  hvac_entity: !input "hvac_entity"
+  hvac_mode_entity: !input "hvac_mode_entity"
+  window_entity: !input "window_entity"
+  speaker_entity: !input "speaker_entity"
+  blocker_entity: !input "blocker_entity"
+
+  current_mode: "{{ states(hvac_entity) }}"
+  desired_mode: >
+    {% if states(window_entity) == 'on' %}
+      off
+    {% else %}
+      {{ states(hvac_mode_entity) }}
+    {% endif %}
+
+condition:
+  - condition: template
+    value_template: "{{ current_mode != desired_mode }}"
+
+action:
+  - service: climate.set_hvac_mode
+    target:
+      entity_id: "{{hvac_entity}}"
+    data:
+      hvac_mode: "{{desired_mode}}"
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{current_mode != 'off' }"
+        sequence:
+          - service: input_select.select_option
+            target:
+              entity_id: "{{hvac_mode_entity}}"
+            data:
+              option: "{{current_mode}}"
+    default: []
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ speaker_entity != none and (blocker_entity == none or states(blocker_entity) == 'off') }}"
+        sequence:
+          - service: tts.google_translate_say
+            data:
+              entity_id: "{{speaker_entity}}"
+              message: "HVAC mode changed to {{desired_mode}}"
+    default: []
