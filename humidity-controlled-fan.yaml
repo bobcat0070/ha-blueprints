@@ -83,7 +83,6 @@ trigger:
       - !input "humidity_sensor"
       - !input "reference_temperature_sensor"
       - !input "reference_humidity_sensor"
-      - !input "fan_switch"
   - platform: homeassistant
     event: start
 

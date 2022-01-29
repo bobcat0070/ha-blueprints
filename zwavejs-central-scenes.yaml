@@ -1,9 +1,8 @@
 # Original source: https://github.com/moshess/homeassistant-blueprints/blob/master/zwavejs/zwavejs-dimmer-switch.yaml
 
 blueprint:
-  name: Z-WaveJS dimmer switch
-  description: Automation blueprint for Z-Wave dimmer switches with up/down buttons
-    and multiple key press scene gestures.
+  name: Z-WaveJS Central Scenes
+  description: Automation blueprint for Z-Wave switches with up/down buttons and multiple key press scenes.
   source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/zwavejs-central-scenes.yaml
   domain: automation
   input:
