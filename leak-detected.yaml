@@ -51,11 +51,11 @@ action:
         sequence:
           - service: switch.turn_off
             target:
-              entity_id: {{shutoff_valve}}
+              entity_id: !input "shutoff_valve"
         default: []
   - choose:
       - conditions:
           - condition: template
             value_template: '{{ notify_action != none }}'
-        sequence: {{notify_action}}
+        sequence: !input "notify_action"
         default: []
