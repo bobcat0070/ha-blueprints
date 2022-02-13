@@ -77,6 +77,12 @@ action:
       parameter: "31"
       value: "{{blink_value}}"
       bitmask: "{{blink_bitmask}}"
+  # Set blink frequency
+  - service: zwave_js.set_config_parameter
+    target: !input "zwavejs_device_id"
+    data:
+      parameter: "30"
+      value: "8"
   # Show status LEDs
   - service: zwave_js.set_config_parameter
     target: !input "zwavejs_device_id"
