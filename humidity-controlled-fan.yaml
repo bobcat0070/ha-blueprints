@@ -3,7 +3,7 @@
 blueprint:
   name: Humidity Controlled Fan
   description: Turn a fan on and off based on the difference in absolute humidity (g/m3) between temperature and humidity sensors and baseline temperature and humidity sensors.
-  source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/humidity-controlled-fan.yaml
+  source_url: https://github.com/lymanepp/ha-blueprints/blob/main/humidity-controlled-fan.yaml
   domain: automation
   input:
     temperature_sensor:

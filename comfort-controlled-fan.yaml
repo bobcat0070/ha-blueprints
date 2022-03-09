@@ -6,7 +6,7 @@ blueprint:
     Use a ceiling fan to maintain comfort. Uses the summer simmer index (SSI) to determine comfort level.
     The Summer Simmer Index - A Comfort Index for the New Millennium.
     http://www.summersimmer.com/home.htm
-  source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/comfort-controlled-fan.yaml
+  source_url: https://github.com/lymanepp/ha-blueprints/blob/main/comfort-controlled-fan.yaml
   domain: automation
   input:
     temperature_sensor:

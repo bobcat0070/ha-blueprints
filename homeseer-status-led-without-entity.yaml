@@ -1,7 +1,7 @@
 blueprint:
   name: Activate HomeSeer status LEDs (without entity comparison)
   description: TODO
-  source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/homeseer-status-led-without-entity.yaml
+  source_url: https://github.com/lymanepp/ha-blueprints/blob/main/homeseer-status-led-without-entity.yaml
   domain: automation
   input:
     zwavejs_device_id:

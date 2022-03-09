@@ -1,7 +1,7 @@
 blueprint:
   name: Turn off HVAC when windows are open.
   description: TODO
-  source_url: https://github.com/lymanepp/homeassistant-blueprints/blob/main/window-open-hvac-off.yaml
+  source_url: https://github.com/lymanepp/ha-blueprints/blob/main/window-open-hvac-off.yaml
   domain: automation
   input:
     hvac_entity:
