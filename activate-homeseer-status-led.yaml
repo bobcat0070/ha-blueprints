@@ -58,18 +58,30 @@ variables:
   led_number: "{{ status_led[-1] | int }}"
   color_value: "{{ states(color_entity) }}"
   blink_value: "{% if is_state(blink_entity, 'on') %}1{% else %}0{% endif %}"
-  color_parameter: "{{ ( led_number + 20 ) }}"
+  color_parameter: "{{ ( 20 + led_number ) }}"
   blink_bitmask: "{{ ( (1,2,4,8,16,32,64)[led_number - 1] ) }}"
 
 condition: []
 
 action:
+  # Show status LEDs
+  - service: zwave_js.set_config_parameter
+    target: !input "zwavejs_device_id"
+    data:
+      parameter: "13"
+      value: "1"
   # Set the LED color
   - service: zwave_js.set_config_parameter
     target: !input "zwavejs_device_id"
     data:
       parameter: "{{color_parameter}}"
       value: "{{color_value}}"
+  # Set blink frequency
+  - service: zwave_js.set_config_parameter
+    target: !input "zwavejs_device_id"
+    data:
+      parameter: "30"
+      value: "8"
   # Enable/disable blinking
   - service: zwave_js.set_config_parameter
     target: !input "zwavejs_device_id"
@@ -77,15 +89,3 @@ action:
       parameter: "31"
       value: "{{blink_value}}"
       bitmask: "{{blink_bitmask}}"
-  # Set blink frequency
-  - service: zwave_js.set_config_parameter
-    target: !input "zwavejs_device_id"
-    data:
-      parameter: "30"
-      value: "8"
-  # Show status LEDs
-  - service: zwave_js.set_config_parameter
-    target: !input "zwavejs_device_id"
-    data:
-      parameter: "13"
-      value: "1"
