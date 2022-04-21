@@ -1,0 +1,84 @@
+blueprint:
+  name: Z-WaveJS switch on/off all lights in area or home
+  description: Switch on/off all lights in the area where a button was pressed or in the entire home.
+  source_url: https://github.com/lymanepp/ha-blueprints/blob/main/zwavejs-area-home-lights.yaml
+  domain: automation
+  input:
+    exclude_on:
+      name: Do not switch these lights on
+      description: Exclude these lights when turning on lights.
+      default:
+        entity_id: []
+      selector:
+        target:
+          entity:
+            domain: light
+    exclude_off:
+      name: Do not switch these lights off
+      description: Exclude these lights when turning off lights.
+      default:
+        entity_id: []
+      selector:
+        target:
+          entity:
+            domain: light
+
+mode: single
+
+trigger:
+- platform: event
+  event_type: zwave_js_value_notification
+
+condition:
+- condition: template
+  value_template: '{{ trigger.event.data.command_class == 91 }}'
+
+action:
+- variables:
+    exclude_on: !input "exclude_on"
+    exclude_off: !input "exclude_off"
+    scene_id: '{{ (trigger.event.data.property_key_name | int) }}' # values 001, 002 and sometimes 003
+    key_pressed: '{{ trigger.event.data.value }}'
+    area_id: '{{ area_id(trigger.event.data.device_id) }}'
+    all_lights: '{{ states.light | map(attribute="entity_id") | sort | list }}'
+    area_lights: '{{ area_entities(area_id) | select("in", all_lights) | sort | list }}'
+
+- choose:
+  - conditions:
+    - condition: template
+      value_template: '{{ scene_id == 1 and key_pressed == "KeyPressed2x" }}'
+    sequence:
+    - service: light.turn_on
+      data: {}
+      target:
+        entity_id: '{{ area_lights | reject("in", exclude_on.entity_id) | list }}'
+
+  - conditions:
+    - condition: template
+      value_template: '{{ scene_id == 2 and key_pressed == "KeyPressed2x" }}'
+    sequence:
+    - service: light.turn_off
+      data: {}
+      target:
+        entity_id: '{{ area_lights | reject("in", exclude_off.entity_id) | list }}'
+
+  - conditions:
+    - condition: template
+      value_template: '{{ scene_id == 1 and key_pressed == "KeyPressed3x" }}'
+    sequence:
+    - service: light.turn_on
+      data:
+        brightness_pct: 100
+      target:
+        entity_id: '{{ all_lights | reject("in", exclude_on.entity_id) | list }}'
+
+  - conditions:
+    - condition: template
+      value_template: '{{ scene_id == 2 and key_pressed == "KeyPressed3x" }}'
+    sequence:
+    - service: light.turn_off
+      data: {}
+      target:
+        entity_id: '{{ all_lights | reject("in", exclude_off.entity_id) | list }}'
+
+  default: []
