@@ -1,0 +1,93 @@
+blueprint:
+  name: Activate HomeSeer status LEDs
+  description: TODO
+  source_url: https://github.com/lymanepp/ha-blueprints/blob/main/activate-homeseer-status-led.yaml
+  domain: automation
+  input:
+    zwavejs_device_id:
+      name: Z-Wave JS switch
+      description: Select the sensor device which offers scene selection.
+        Listed devices are not guaranteed to work with any/all of these button mappings.
+      selector:
+        target:
+          device:
+            integration: zwave_js
+            manufacturer: HomeSeer Technologies
+    status_led:
+      name: Status LED to be activated
+      description: The number of available status LEDs varies by device. HS-WD200+ and HS-WX300 have seven LEDs. HS-FC200+ has four LEDs.
+      selector:
+        select:
+          options:
+            - LED1
+            - LED2
+            - LED3
+            - LED4
+            - LED5
+            - LED6
+            - LED7
+    color_entity:
+      name: Input number containing LED status color value
+      description: TODO
+      selector:
+        entity:
+          domain: input_number
+    blink_entity:
+      name: Input boolean containing LED status blink value
+      description: TODO
+      selector:
+        entity:
+          domain: input_boolean
+
+mode: queued
+
+trigger:
+  - platform: state
+    entity_id:
+      - !input color_entity
+      - !input blink_entity
+  - platform: homeassistant
+    event: start
+
+variables:
+  zwavejs_device_id: !input zwavejs_device_id
+  status_led: !input status_led
+  color_entity: !input color_entity
+  blink_entity: !input blink_entity
+
+  led_number: '{{ status_led[-1] | int }}'
+  color_value: '{{ states(color_entity) }}'
+  blink_value: '{% if is_state(blink_entity, "on") %}1{% else %}0{% endif %}'
+  color_parameter: '{{ ( 20 + led_number ) }}'
+  blink_bitmask: '{{ 2**(led_number - 1) }}'
+
+action:
+  # Show status LEDs
+  - service: zwave_js.set_config_parameter
+    target: '{{zwavejs_device_id}}'
+    data:
+      parameter: '13'
+      value: '1'
+
+  # Set the LED color
+  - service: zwave_js.set_config_parameter
+    target: '{{zwavejs_device_id}}'
+    data:
+      parameter: '{{color_parameter}}'
+      value: '{{color_value}}'
+
+  # Set blink frequency
+  - service: zwave_js.set_config_parameter
+    target: '{{zwavejs_device_id}}'
+    data:
+      parameter: '30'
+      value: '8'
+
+  # Enable/disable blinking
+  - service: zwave_js.set_config_parameter
+    target: '{{zwavejs_device_id}}'
+    data:
+      parameter: '31'
+      value: '{{blink_value}}'
+      bitmask: '{{blink_bitmask}}'
+ 
