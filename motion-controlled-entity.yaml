@@ -1,13 +1,14 @@
-# Original source: https://community.home-assistant.io/t/turn-on-light-switch-scene-script-or-group-based-on-motion-and-illuminance-more-conditions/257085
-
 blueprint:
   name: Turn on an entity based on motion and illuminance.
   description: >-
-    Turn on an entity based on motion detection, and low light level. Supported domains are: automation, camera, fan, input_boolean,
-    light, media_player, remote, scene, script, siren, and switch.
+    Turn on an entity based on motion detection, and low light level. Supported
+    domains are: automation, camera, fan, input_boolean, light, media_player,
+    remote, scene, script, siren, and switch.
 
-    This blueprint uses helper entities you have to create yourself for some input values, to be able to dynamically set limits.
-    For instructions on creating the helper entities take a look in the Home Assistant Community forum topic:
+    This blueprint uses helper entities you have to create yourself for some
+    input values, to be able to dynamically set limits. For instructions on
+    creating the helper entities take a look in the Home Assistant Community
+    forum topic:
     https://community.home-assistant.io/t/turn-on-light-switch-scene-or-script-based-on-motion-and-illuminance-more-conditions/257085
 
     ## Required entities
@@ -15,13 +16,20 @@ blueprint:
       - Target entity (light, switch, scene or script)
 
     ## Optional features
-      - You can set a cutoff entity of which the value determines whether the illuminance level is low and the automation needs to trigger.
-      - You can define a blocking entity, which blocks the automation from running when this entity's state is on.
-      - You van define a turn-off blocking entity, which blocks the entity from turning off after the set delay.
-      - Time limits can also be defined to limit the time before and after the automation should trigger.
-      - If you want the entity to turn off after a certain amount of minutes, you can use the Wait Time input.
-      - If you want another entity than the target_entity to turn off after the delay, you can define a separate Turn-off entity.
-      - If you do not enable the optional entities the automation will skip these conditions.
+      - You can set a cutoff entity of which the value determines whether the
+        illuminance level is low and the automation needs to trigger.
+      - You can define a blocking entity, which blocks the automation from
+        running when this entity's state is on.
+      - You van define a turn-off blocking entity, which blocks the entity from
+        turning off after the set delay.
+      - Time limits can also be defined to limit the time before and after the
+        automation should trigger.
+      - If you want the entity to turn off after a certain amount of minutes,
+        you can use the Wait Time input.
+      - If you want another entity than the target_entity to turn off after the
+        delay, you can define a separate Turn-off entity.
+      - If you do not enable the optional entities the automation will skip
+        these conditions.
 
     ## Optional entities
       - Illuminance sensor (sensor in illuminance class)
@@ -29,10 +37,12 @@ blueprint:
       - Blocking entity (any entity with state on/off)
       - Time limit before (input_datetime)
       - Time limit after (input_datetime)
-      - Turn off wait time [in minutes!] (input_number) - will not work with script or scene target entities.
+      - Turn off wait time [in minutes!] (input_number) - will not work with
+        script or scene target entities.
       - Turn off entity (any entity_id)
 
-  source_url: https://github.com/lymanepp/ha-blueprints/blob/main/motion-controlled-entity.yaml
+  source_url: >-
+    https://github.com/lymanepp/homeassistant-blueprints/blob/main/motion-controlled-entity.yaml
   domain: automation
   input:
     motion_sensor:
@@ -61,22 +71,26 @@ blueprint:
     illuminance_sensor:
       name: (OPTIONAL) Illuminance sensor
       description: This sensor will be used to determine the illumination.
-      default:
+      default: null
       selector:
         entity:
           domain: sensor
           device_class: illuminance
     illuminance_cutoff:
       name: (OPTIONAL) Illuminance cutoff value
-      description: This input_number will be used to compare to the current illumination to determine if it is low.
-      default:
+      description: >-
+        This input_number will be used to compare to the current illumination to
+        determine if it is low.
+      default: null
       selector:
         entity:
           domain: input_number
     blocker_entity:
       name: (OPTIONAL) Blocking entity
-      description: If this entity's state is on, it will prevent the automation from running. E.g. sleepmode or away mode.
-      default:
+      description: >-
+        If this entity's state is on, it will prevent the automation from
+        running. E.g. sleepmode or away mode.
+      default: null
       selector:
         entity:
           domain:
@@ -84,21 +98,27 @@ blueprint:
             - input_boolean
     time_range_start:
       name: (OPTIONAL) Only run after time.
-      description: Automation will only run when time is later than this input_datetime value.
-      default:
+      description: >-
+        Automation will only run when time is after than this input_datetime
+        value.
+      default: null
       selector:
         entity:
           domain: input_datetime
     time_range_end:
       name: (OPTIONAL) Only run before time.
-      description: Automation will only run when time is earlier than this input_datetime value.
-      default:
+      description: >-
+        Automation will only run when time is before than this input_datetime
+        value.
+      default: null
       selector:
         entity:
           domain: input_datetime
     no_motion_wait:
       name: (OPTIONAL) Turn off wait time (minutes)
-      description: Time in minutes to leave the target entity on after last motion is detected. If zero, the entity will not auto turn off.
+      description: >-
+        Time in minutes to leave the target entity on after last motion is
+        detected. If zero, the entity will not auto turn off.
       selector:
         number:
           min: 0
@@ -106,14 +126,19 @@ blueprint:
       default: 10
     turn_off_blocker_entity:
       name: (OPTIONAL) Turn-off Blocking entity
-      description: If this entity's state is on, it will prevent the target entity from turning off after the set delay.
-      default:
+      description: >-
+        If this entity's state is on, it will prevent the target entity from
+        turning off after the set delay.
+      default: null
       selector:
-        entity:
+        entity: null
     target_off_entity:
       name: (OPTIONAL) Turn-off entity
-      description: If defined, this entity will be turned off instead of the default target entity. This can be helpful when using target entities of type scene or script.
-      default:
+      description: >-
+        If defined, this entity will be turned off instead of the default target
+        entity. This can be helpful when using target entities of type scene or
+        script.
+      default: null
       selector:
         entity:
           domain:
@@ -159,23 +184,19 @@ action:
           - condition: template
             value_template: >-
               {{ is_state(target_entity, "off")
-                 and (not illuminance_sensor or not illuminance_cutoff
-                      or states(illuminance_sensor) | int(0) < states(illuminance_cutoff) | int(100))
-                 and (not blocker_entity or is_state(blocker_entity, 'off')) }}
+                 and (not blocker_entity or is_state(blocker_entity, "off")) }}
+          - condition: template
+            value_template: >-
+              {{ not illuminance_sensor or not illuminance_cutoff
+                 or states(illuminance_sensor) | int(0) < states(illuminance_cutoff) | int(100) }}
           - condition: template
             value_template: >-
               {% set now = now().strftime("%H:%M") %}
-              {% if not time_range_start and not time_range_end %}
-                true
-              {% elif not time_range_start %}
-                {{ now < states(time_range_end) }}
-              {% elif not time_range_end %}
-                {{ states(time_range_start) <= now }}
-              {% elif states(time_range_start) <= states(time_range_end) %}
-                {{ states(time_range_start) <= now < states(time_range_end) }}
-              {% else %}
-                {{ states(time_range_start) <= now or now < states(time_range_end) }}
-              {% endif %}
+              {{ (not time_range_start and not time_range_end)
+                 or (not time_range_start and now < states(time_range_end))
+                 or (not time_range_end and states(time_range_start) <= now)
+                 or (states(time_range_start) <= states(time_range_end) and states(time_range_start) <= now < states(time_range_end))
+                 or (states(time_range_start) <= now or now < states(time_range_end)) }}
         then:
           - service: homeassistant.turn_on
             target:
@@ -190,7 +211,7 @@ action:
               - condition: template
                 value_template: >-
                   {{ is_state(target_off_entity or target_entity, "on")
-                    and (not turn_off_blocker_entity or is_state(turn_off_blocker_entity, "off")) }}
+                     and (not turn_off_blocker_entity or is_state(turn_off_blocker_entity, "off")) }}
             then:
               - service: homeassistant.turn_off
                 target:
@@ -201,8 +222,7 @@ action:
       - if:
           - condition: template
             value_template: >-
-              {{ is_state(target_off_entity or target_entity, "on")
-                 and no_motion_wait > 0 }}
+              {{ is_state(target_off_entity or target_entity, "on") and no_motion_wait > 0 }}
         then:
           - delay:
               minutes: '{{no_motion_wait}}'
