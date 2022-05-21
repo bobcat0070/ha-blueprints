@@ -55,29 +55,29 @@ mode: single
 
 trigger:
   - platform: time
-    at: !input "time"
+    at: !input time
 
 variables:
-  day: !input "day"
-  threshold: !input "threshold"
-  exclude: !input "exclude"
+  day: !input day
+  threshold: !input threshold
+  exclude: !input exclude
   sensors: >-
     {% set result = namespace(sensors=[]) %}
-    {% for state in states.sensor | selectattr('attributes.device_class', '==', 'battery') %}
+    {% for state in states.sensor | selectattr("attributes.device_class", "==", "battery") %}
       {% if 0 <= state.state | int(-1) < threshold | int and not state.entity_id in exclude.entity_id %}
-        {% set result.sensors = result.sensors + [state.name ~ ' (' ~ state.state | int ~ '%)'] %}
+        {% set result.sensors = result.sensors + [state.name ~ " (" ~ state.state | int ~ "%)"] %}
       {% endif %}
     {% endfor %}
-    {% for state in states.binary_sensor | selectattr('attributes.device_class', '==', 'battery') | selectattr('state', '==', 'on') %}
+    {% for state in states.binary_sensor | selectattr("attributes.device_class", "==", "battery") | selectattr("state", "==", "on") %}
       {% if not state.entity_id in exclude.entity_id %}
         {% set result.sensors = result.sensors + [state.name] %}
       {% endif %}
     {% endfor %}
-    {{ result.sensors|join('\n') }}
+    {{ result.sensors|join("\n") }}
 
 condition:
   - '{{ sensors != "" and (day | int == 0 or day | int == now().isoweekday()) }}'
 
 action:
   - choose: []
-    default: !input "actions"
+    default: !input actions

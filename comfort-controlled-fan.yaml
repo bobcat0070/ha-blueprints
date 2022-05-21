@@ -97,21 +97,21 @@ variables:
   lower_ssi: !input lower_ssi
   upper_ssi: !input upper_ssi
 
-  curr_state: "{{ states(fan_control) }}"
-  curr_speed: "{{ state_attr(fan_control, 'percentage')|int }}"
-  fan_range: "{{ max_fan_speed - min_fan_speed }}"
-  ssi_range: "{{ upper_ssi - lower_ssi }}"
+  curr_state: '{{ states(fan_control) }}'
+  curr_speed: '{{ state_attr(fan_control, "percentage")|int }}'
+  fan_range: '{{ max_fan_speed - min_fan_speed }}'
+  ssi_range: '{{ upper_ssi - lower_ssi }}'
   ssi: >
     {% set rh, tF = states(humidity_sensor), states(temperature_sensor) %}
-    {% if rh == 'unknown' or tF == 'unknown' %}unknown{% else %}
+    {% if rh == "unknown" or tF == "unknown" %}unknown{% else %}
       {% set rh, tF = rh|float, tF|float %}
-      {% if is_state_attr(temperature_sensor, 'unit_of_measurement', '°C') %}
-        {% set tF = (tF/5.0*9)+32 %}
+      {% if is_state_attr(temperature_sensor, "unit_of_measurement", "°C") %}
+        {% set tF = (tF*1.8)+32 %}
       {% endif %}
       {{ 1.98*(tF-(0.55-(0.0055*rh))*(tF-58))-56.83 }}
     {% endif %}
   new_speed: >
-    {% if is_state(prerequisite_entity, 'off') or ssi|float < lower_ssi|float
+    {% if is_state(prerequisite_entity, "off") or ssi|float < lower_ssi|float
     %}0{% elif ssi|float > upper_ssi|float
     %}{{ max_fan_speed }}{% else
     %}{{ ((((ssi-lower_ssi)/ssi_range)*fan_range)+min_fan_speed)|int }}{% endif %}
@@ -120,11 +120,11 @@ variables:
 
 condition:
   - condition: template
-    value_template: "{{ (new_state != curr_state) or (new_speed != curr_speed) }}"
+    value_template: '{{ (new_state != curr_state) or (new_speed != curr_speed) }}'
 
 action:
   - service: fan.set_percentage
     target:
-      entity_id: !input "fan_control"
+      entity_id: '{{fan_control}}'
     data:
-      percentage: "{{new_speed}}"
+      percentage: '{{new_speed}}'

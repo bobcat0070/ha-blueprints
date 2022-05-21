@@ -63,22 +63,22 @@ max_exceeded: silent
 
 trigger:
 - platform: state
-  entity_id: !input 'window_entity'
+  entity_id: !input window_entity
   to: 'on'
-  for: !input 'minimum_open_time'
+  for: !input minimum_open_time
 - platform: state
-  entity_id: !input 'window_entity'
+  entity_id: !input window_entity
   to: 'off'
-  for: !input 'minimum_closed_time'
+  for: !input minimum_closed_time
 - platform: homeassistant
   event: start
 
 variables:
-  hvac_entity: !input 'hvac_entity'
-  hvac_mode_entity: !input 'hvac_mode_entity'
-  window_entity: !input 'window_entity'
-  speaker_entity: !input 'speaker_entity'
-  speech_blocker_entity: !input 'speech_blocker_entity'
+  hvac_entity: !input hvac_entity
+  hvac_mode_entity: !input hvac_mode_entity
+  window_entity: !input window_entity
+  speaker_entity: !input speaker_entity
+  speech_blocker_entity: !input speech_blocker_entity
 
   current_mode: '{{ states(hvac_entity) }}'
   desired_mode: '{% if is_state(window_entity, "on") %}off{% else %}{{ states(hvac_mode_entity) }}{% endif %}'

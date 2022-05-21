@@ -79,51 +79,51 @@ mode: single
 trigger:
   - platform: state
     entity_id:
-      - !input "temperature_sensor"
-      - !input "humidity_sensor"
-      - !input "reference_temperature_sensor"
-      - !input "reference_humidity_sensor"
+      - !input temperature_sensor
+      - !input humidity_sensor
+      - !input reference_temperature_sensor
+      - !input reference_humidity_sensor
   - platform: homeassistant
     event: start
 
 variables:
-  temperature_sensor: !input "temperature_sensor"
-  humidity_sensor: !input "humidity_sensor"
-  reference_temperature_sensor: !input "reference_temperature_sensor"
-  reference_humidity_sensor: !input "reference_humidity_sensor"
-  fan_switch: !input "fan_switch"
-  switch_state: "{{ states(fan_switch) }}"
-  rising_threshold: !input "rising_threshold"
-  falling_threshold: !input "falling_threshold"
+  temperature_sensor: !input temperature_sensor
+  humidity_sensor: !input humidity_sensor
+  reference_temperature_sensor: !input reference_temperature_sensor
+  reference_humidity_sensor: !input reference_humidity_sensor
+  fan_switch: !input fan_switch
+  switch_state: '{{ states(fan_switch) }}'
+  rising_threshold: !input rising_threshold
+  falling_threshold: !input falling_threshold
   abs_humid_ref: >
     {% set rh, tC = states(reference_humidity_sensor), states(reference_temperature_sensor) %}
-    {% if rh == 'unknown' or tC == 'unknown' %}unknown{% else %}
+    {% if rh == "unknown" or tC == "unknown" %}unknown{% else %}
       {% set rh, tC = rh|float, tC|float %}
-      {% if is_state_attr(reference_temperature_sensor, 'unit_of_measurement', '°F') %}
+      {% if is_state_attr(reference_temperature_sensor, "unit_of_measurement", "°F") %}
         {% set tC = (tC-32.0)/9*5 %}
       {% endif %}
       {{ (rh*6.112*2.1674*e**((tC*17.67)/(tC+243.5))/(tC+273.15))|round(2) }}
     {% endif %}
   abs_humid: >
     {% set rh, tC = states(humidity_sensor), states(temperature_sensor) %}
-    {% if rh == 'unknown' or tC == 'unknown' %}unknown{% else %}
+    {% if rh == "unknown" or tC == "unknown" %}unknown{% else %}
       {% set rh, tC = rh|float, tC|float %}
-      {% if is_state_attr(temperature_sensor, 'unit_of_measurement', '°F') %}
+      {% if is_state_attr(temperature_sensor, "unit_of_measurement", "°F") %}
         {% set tC = (tC-32.0)/9*5 %}
       {% endif %}
       {{ (rh*6.112*2.1674*e**((tC*17.67)/(tC+243.5))/(tC+273.15))|round(2) }}
     {% endif %}
-  difference: "{{ abs_humid|float - abs_humid_ref|float }}"
+  difference: '{{ abs_humid|float - abs_humid_ref|float }}'
   mode: >
-    {% if switch_state == 'off' and difference|float > rising_threshold|float
-    %}on{% elif switch_state == 'on' and difference|float > falling_threshold|float
+    {% if switch_state == "off" and difference|float > rising_threshold|float
+    %}on{% elif switch_state == "on" and difference|float > falling_threshold|float
     %}on{% else %}off{% endif %}
 
 condition:
   - condition: template
-    value_template: "{{ mode != switch_state }}"
+    value_template: '{{ mode != switch_state }}'
 
 action:
   - service: homeassistant.turn_{{mode}}
     target:
-      entity_id: !input "fan_switch"
+      entity_id: '{{fan_switch}}'

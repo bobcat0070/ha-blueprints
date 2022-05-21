@@ -3,6 +3,7 @@
 blueprint:
   name: Schlage Lock Actions
   description: Perform action based on code slot that unlocked door
+  source_url: https://github.com/lymanepp/ha-blueprints/blob/main/schlage-lock-actions.yaml.yaml
   domain: automation
   input:
     schlage_lock:
@@ -225,82 +226,82 @@ trigger:
     event_type: zwave_js_notification
 
 variables:
-  device_id: !input "schlage_lock"
+  device_id: !input schlage_lock
 
 condition: >-
-  {{ trigger.event.data.device_id == device_id and trigger.event.data.command_class_name == 'Notification' }}
+  {{ trigger.event.data.device_id == device_id and trigger.event.data.command_class_name == "Notification" }}
 
 action:
   - variables:
-      user_code: "{{ trigger.event.data.parameters.userId }}"
-      lock_operation: "{{ trigger.event.data.event_label }}"
+      user_code: '{{ trigger.event.data.parameters.userId }}'
+      lock_operation: '{{ trigger.event.data.event_label }}'
 
   - choose:
       - conditions: '{{ lock_operation == "Manual lock operation" }}'
-        sequence: !input "manual_lock"
+        sequence: !input manual_lock
       - conditions: '{{ lock_operation == "Manual unlock operation" }}'
-        sequence: !input "manual_unlock"
+        sequence: !input manual_unlock
       - conditions: '{{ lock_operation == "Keypad lock operation" }}'
-        sequence: !input "keypad_lock"
+        sequence: !input keypad_lock
       - conditions: '{{ lock_operation == "Keypad unlock operation" }}'
-        sequence: !input "keypad_unlock"
+        sequence: !input keypad_unlock
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 1 }}'
-        sequence: !input "user_1"
+        sequence: !input user_1
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 2 }}'
-        sequence: !input "user_2"
+        sequence: !input user_2
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 3 }}'
-        sequence: !input "user_3"
+        sequence: !input user_3
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 4 }}'
-        sequence: !input "user_4"
+        sequence: !input user_4
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 5 }}'
-        sequence: !input "user_5"
+        sequence: !input user_5
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 6 }}'
-        sequence: !input "user_6"
+        sequence: !input user_6
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 7 }}'
-        sequence: !input "user_7"
+        sequence: !input user_7
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 8 }}'
-        sequence: !input "user_8"
+        sequence: !input user_8
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 9 }}'
-        sequence: !input "user_9"
+        sequence: !input user_9
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 10 }}'
-        sequence: !input "user_10"
+        sequence: !input user_10
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 11 }}'
-        sequence: !input "user_11"
+        sequence: !input user_11
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 12 }}'
-        sequence: !input "user_12"
+        sequence: !input user_12
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 13 }}'
-        sequence: !input "user_13"
+        sequence: !input user_13
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 14 }}'
-        sequence: !input "user_14"
+        sequence: !input user_14
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 15 }}'
-        sequence: !input "user_15"
+        sequence: !input user_15
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 16 }}'
-        sequence: !input "user_16"
+        sequence: !input user_16
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 17 }}'
-        sequence: !input "user_17"
+        sequence: !input user_17
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 18 }}'
-        sequence: !input "user_18"
+        sequence: !input user_18
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 19 }}'
-        sequence: !input "user_19"
+        sequence: !input user_19
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 20 }}'
-        sequence: !input "user_20"
+        sequence: !input user_20
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 21 }}'
-        sequence: !input "user_21"
+        sequence: !input user_21
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 22 }}'
-        sequence: !input "user_22"
+        sequence: !input user_22
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 23 }}'
-        sequence: !input "user_23"
+        sequence: !input user_23
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 24 }}'
-        sequence: !input "user_24"
+        sequence: !input user_24
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 25 }}'
-        sequence: !input "user_25"
+        sequence: !input user_25
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 26 }}'
-        sequence: !input "user_26"
+        sequence: !input user_26
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 27 }}'
-        sequence: !input "user_27"
+        sequence: !input user_27
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 28 }}'
-        sequence: !input "user_28"
+        sequence: !input user_28
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 29 }}'
-        sequence: !input "user_29"
+        sequence: !input user_29
       - conditions: '{{ lock_operation == "Keypad unlock operation" and user_code == 30 }}'
-        sequence: !input "user_30"
+        sequence: !input user_30
