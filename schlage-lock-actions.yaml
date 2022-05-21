@@ -3,7 +3,7 @@
 blueprint:
   name: Schlage Lock Actions
   description: Perform action based on code slot that unlocked door
-  source_url: https://github.com/lymanepp/ha-blueprints/blob/main/schlage-lock-actions.yaml.yaml
+  source_url: https://github.com/lymanepp/ha-blueprints/blob/main/schlage-lock-actions.yaml
   domain: automation
   input:
     schlage_lock:
@@ -229,7 +229,7 @@ variables:
   device_id: !input schlage_lock
 
 condition: >-
-  {{ trigger.event.data.device_id == device_id and trigger.event.data.command_class_name == "Notification" }}
+  {{ trigger.event.data.device_id == device_id and trigger.event.data.command_class == 113 }}
 
 action:
   - variables:
