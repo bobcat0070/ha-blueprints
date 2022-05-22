@@ -31,9 +31,12 @@ blueprint:
           domain: fan
     prerequisite_entity:
       name: Prerequisite entity
-      description: If this entity's state is off, it will prevent the automation from running. E.g. sleepmode or away mode.
+      description: If this entity's state is off, it will prevent the automation from running. E.g. sleep mode or away mode.
       selector:
         entity:
+          domain:
+            - binary_sensor
+            - input_boolean
     min_fan_speed:
       name: Fan speed lower bound
       description: The lowest fan speed to use
@@ -75,7 +78,8 @@ blueprint:
           step: 1
       default: 91
 
-mode: single
+mode: restart
+max_exceeded: silent
 
 trigger:
   - platform: state
@@ -84,6 +88,7 @@ trigger:
       - !input temperature_sensor
       - !input fan_control
       - !input prerequisite_entity
+    to: null
   - platform: homeassistant
     event: start
 
