@@ -34,3 +34,10 @@ action:
     device_id: !input "notify_device"
     title: Leak detected!
     message: "{{ trigger.event.data.new_state.attributes.friendly_name }} has detected a leak."
+  - service: notify.pushover
+    data:
+      data:
+        priority: 1
+      message: "{{ trigger.event.data.new_state.attributes.friendly_name }} has detected a leak."
+      title: Leak Sensor - Moisture Detected
+    
